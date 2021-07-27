@@ -1,0 +1,27 @@
+[package]
+name = "unified"
+version = "0.1.0"
+description = "Library to query and manage a Unifi controller"
+authors = ["Antoine POPINEAU <antoine@popineau.eu>"]
+repository = "https://github.com/apognu/unified"
+license = "MIT"
+readme = "README.md"
+
+edition = "2018"
+
+[dependencies]
+cookie = "0.15.1"
+chrono = "0.4.19"
+derivative = "^2.2.0"
+ipnet = "^2.3.1"
+macaddr = "^1.0.1"
+num-traits = "0.2"
+num-derive = "0.3"
+reqwest = { version = "0.11.4", features = ["json"] }
+serde = { version = "^1.0", features = ["derive"] }
+serde_json = "^1.0"
+thiserror = "^1.0"
+tokio = { version = "^1.2", default-features = false }
+
+[dev-dependencies]
+tokio = { version = "^1.2", features = ["full"] }
