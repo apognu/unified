@@ -14,12 +14,12 @@ mod util;
 mod wireless;
 
 pub use crate::{
-    clients::ClientRef,
-    devices::DeviceRef,
-    error::UnifiedError,
-    networks::NetworkRef,
-    radius::RadiusUserRef,
-    sites::SiteRef,
-    unified::{Scheme, Unified},
-    wireless::WirelessNetworkRef,
+  clients::{Client, ClientRef},
+  devices::{Device, DeviceRef, DeviceState},
+  error::UnifiedError,
+  networks::{Network, NetworkRef},
+  radius::{RadiusUser, RadiusUserRef},
+  sites::{Site, SiteHealth, SiteRef},
+  unified::{Scheme, Unified},
+  wireless::{WirelessNetwork, WirelessNetworkRef, WirelessNetworkWpa},
 };
