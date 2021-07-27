@@ -43,6 +43,7 @@ pub(crate) enum Method {
   Get,
   Post,
   Put,
+  Delete,
 }
 
 impl Unified {
@@ -123,6 +124,7 @@ impl Unified {
       Method::Get => client.get(&url),
       Method::Post => client.post(&url),
       Method::Put => client.put(&url),
+      Method::Delete => client.delete(&url),
     };
 
     builder.header("cookie", &self.token)

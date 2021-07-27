@@ -8,9 +8,7 @@ impl<'wn> WirelessNetwork<'wn> {
   // # Example
   ///
   /// ```
-  /// let network = unifi.wireless_network("default", WirelessNetworkRef::Ssid("ACME Corp")).await?;
-  ///
-  /// if let Some(network) = network {
+  /// if let Some(network) = unifi.wireless_network("default", WirelessNetworkRef::Ssid("ACME Corp")).await? {
   ///   network.enable().await?;
   /// }
   /// ```
@@ -23,9 +21,7 @@ impl<'wn> WirelessNetwork<'wn> {
   // # Example
   ///
   /// ```
-  /// let network = unifi.wireless_network("default", WirelessNetworkRef::Ssid("ACME Corp")).await?;
-  ///
-  /// if let Some(network) = network {
+  /// if let Some(network) = unifi.wireless_network("default", WirelessNetworkRef::Ssid("ACME Corp")).await? {
   ///   network.disable().await?;
   /// }
   /// ```
@@ -40,6 +36,21 @@ impl<'wn> WirelessNetwork<'wn> {
       .json(&json!({ "enabled": state }))
       .send()
       .await?;
+
+    Ok(())
+  }
+
+  /// Delete the wireless network.
+  ///
+  /// # Example
+  ///
+  /// ```
+  /// if let Some(network) = unifi.wireless_network("default", WirelessNetworkRef::Ssid("ACME Corp")).await? {
+  ///   network.delete().await?;
+  /// }
+  /// ```
+  pub async fn delete(&self) -> Result<(), UnifiedError> {
+    self.unified.request(Method::Delete, &format!("/api/s/{}/rest/wlanconf/{}", self.site, self.id)).send().await?;
 
     Ok(())
   }

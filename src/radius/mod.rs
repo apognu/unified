@@ -1,6 +1,7 @@
-use crate::Unified;
-
 mod list;
+mod state;
+
+use crate::Unified;
 
 /// Representation of the attribute used to select a RADIUS user.
 pub enum RadiusUserRef<'r> {
@@ -13,7 +14,6 @@ pub enum RadiusUserRef<'r> {
 #[derivative(Debug)]
 pub struct RadiusUser<'ru> {
   #[derivative(Debug = "ignore")]
-  #[allow(dead_code)]
   pub(crate) unified: &'ru Unified,
   pub(crate) site: String,
 

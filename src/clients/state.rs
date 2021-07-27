@@ -8,9 +8,7 @@ impl<'c> Client<'c> {
   /// # Example
   ///
   /// ```
-  /// let client = unifi.client("default", ClientRef::Ip("1.2.3.4")).await?;
-  ///
-  /// if let Some(client) = client {
+  /// if let Some(client) = unifi.client("default", ClientRef::Ip("1.2.3.4")).await? {
   ///   client.block().await?;
   /// }
   /// ```
@@ -23,9 +21,7 @@ impl<'c> Client<'c> {
   /// # Example
   ///
   /// ```
-  /// let client = unifi.client("default", ClientRef::Ip("1.2.3.4")).await?;
-  ///
-  /// if let Some(client) = client {
+  /// if let Some(client) = unifi.client("default", ClientRef::Ip("1.2.3.4")).await? {
   ///   client.unblock().await?;
   /// }
   /// ```
@@ -38,9 +34,7 @@ impl<'c> Client<'c> {
   /// # Example
   ///
   /// ```
-  /// let client = unifi.client("default", ClientRef::Ip("1.2.3.4")).await?;
-  ///
-  /// if let Some(client) = client {
+  /// if let Some(client) = unifi.client("default", ClientRef::Ip("1.2.3.4")).await? {
   ///   client.kick().await?;
   /// }
   /// ```
