@@ -4,7 +4,6 @@ use reqwest::Method;
 use serde::Deserialize;
 
 use crate::{
-  unified::Response,
   wireless::{WirelessNetwork, WirelessNetworkRef, WirelessNetworkWpa},
   Unified, UnifiedError,
 };
@@ -38,15 +37,9 @@ impl Unified {
   /// let networks = unifi.networks("default").await?;
   /// ```
   pub async fn wireless_networks(&self, site: &str) -> Result<Vec<WirelessNetwork<'_>>, UnifiedError> {
-    let response = self
-      .request(Method::GET, &format!("/api/s/{}/rest/wlanconf", site))
-      .send()
-      .await?
-      .json::<Response<Vec<RemoteWirelessNetwork>>>()
-      .await?;
+    let response: Vec<RemoteWirelessNetwork> = self.request(Method::GET, &format!("/api/s/{}/rest/wlanconf", site)).send().await?;
 
     let networks = response
-      .data
       .into_iter()
       .map(|network| {
         let wpa = match network.security.as_str() {

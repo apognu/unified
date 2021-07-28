@@ -7,7 +7,6 @@ use serde::Deserialize;
 
 use crate::{
   devices::{Device, DeviceRef, DeviceState},
-  unified::Response,
   Unified, UnifiedError,
 };
 
@@ -49,15 +48,9 @@ impl Unified {
   /// let devices = unifi.devices("default").await?;
   /// ```
   pub async fn devices(&self, site: &str) -> Result<Vec<Device>, UnifiedError> {
-    let response = self
-      .request(Method::GET, &format!("/api/s/{}/stat/device", site))
-      .send()
-      .await?
-      .json::<Response<Vec<RemoteDevice>>>()
-      .await?;
+    let response: Vec<RemoteDevice> = self.request(Method::GET, &format!("/api/s/{}/stat/device", site)).send().await?;
 
     let devices = response
-      .data
       .into_iter()
       .map(|device| {
         let ip = if !device.network_table.is_empty() {

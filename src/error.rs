@@ -2,8 +2,8 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum UnifiedError {
-  #[error("invalid credentials")]
-  InvalidCredentials,
+  #[error("unifi error: {0}")]
+  UnifiError(String),
 
   #[error("network error")]
   NetworkError(#[from] reqwest::Error),

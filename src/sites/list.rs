@@ -3,7 +3,6 @@ use serde::Deserialize;
 
 use crate::{
   sites::{Site, SiteHealth, SiteRef},
-  unified::Response,
   Unified, UnifiedError,
 };
 
@@ -37,10 +36,9 @@ impl Unified {
   /// let sites = unifi.sites().await?;
   /// ```
   pub async fn sites(&self) -> Result<Vec<Site>, UnifiedError> {
-    let response = self.request(Method::GET, "/api/stat/sites").send().await?.json::<Response<Vec<RemoteSite>>>().await?;
+    let response: Vec<RemoteSite> = self.request(Method::GET, "/api/stat/sites").send().await?;
 
     let sites = response
-      .data
       .into_iter()
       .map(|site| {
         let health = site.health.into_iter().fold(SiteHealth::default(), |mut status, subsystem| {

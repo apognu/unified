@@ -7,7 +7,6 @@ use serde::Deserialize;
 
 use crate::{
   clients::{Client, ClientRef},
-  unified::Response,
   Unified, UnifiedError,
 };
 
@@ -47,15 +46,9 @@ impl Unified {
   /// let clients = unifi.clients("default").await?;
   /// ```
   pub async fn clients(&self, site: &str) -> Result<Vec<Client<'_>>, UnifiedError> {
-    let response = self
-      .request(Method::GET, &format!("/api/s/{}/stat/sta", site))
-      .send()
-      .await?
-      .json::<Response<Vec<RemoteClient>>>()
-      .await?;
+    let response: Vec<RemoteClient> = self.request(Method::GET, &format!("/api/s/{}/stat/sta", site)).send().await?;
 
     let clients = response
-      .data
       .into_iter()
       .map(|client| {
         let seen = client.last_seen.map(|ts| NaiveDateTime::from_timestamp(ts, 0));

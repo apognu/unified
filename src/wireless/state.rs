@@ -34,7 +34,7 @@ impl<'wn> WirelessNetwork<'wn> {
     self
       .unified
       .request(Method::PUT, &format!("/api/s/{}/rest/wlanconf/{}", self.site, self.id))
-      .json(&json!({ "enabled": state }))
+      .body(|r| r.json(&json!({ "enabled": state })))
       .send()
       .await?;
 

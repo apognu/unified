@@ -1,8 +1,11 @@
 use cookie::Cookie;
-use reqwest::{Client, Method, RequestBuilder, StatusCode};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
+use serde_json::json;
 
-use crate::UnifiedError;
+use crate::{
+  http::{Response, Scheme},
+  UnifiedError,
+};
 
 #[derive(Serialize)]
 struct Credentials {
@@ -11,31 +14,11 @@ struct Credentials {
   remember: bool,
 }
 
-#[derive(Deserialize)]
-pub(crate) struct Response<T> {
-  pub(crate) data: T,
-}
-
-/// HTTP scheme to be used for the connection to the Unifi controller.
-pub enum Scheme {
-  Http,
-  Https,
-}
-
-impl Scheme {
-  fn as_str(&self) -> &'static str {
-    match self {
-      Self::Http => "http",
-      Self::Https => "https",
-    }
-  }
-}
-
 /// Handle to an authenticated connection to a Unifi controller.
 pub struct Unified {
-  scheme: Scheme,
-  host: String,
-  token: String,
+  pub(crate) scheme: Scheme,
+  pub(crate) host: String,
+  pub(crate) token: String,
 }
 
 impl Unified {
@@ -75,22 +58,14 @@ impl Unified {
   /// let unifi = Unified::auth(Scheme::Https, "unifi.acme.corp", "joe.shmoe", "mypassword").await?;
   /// ```
   pub async fn auth(scheme: Scheme, host: &str, username: &str, password: &str) -> Result<Unified, UnifiedError> {
-    let host = host.to_string();
-    let credentials = Credentials {
-      username: username.to_string(),
-      password: password.to_string(),
-      remember: true,
-    };
+    let credentials = json!({
+      "username": username.to_string(),
+      "password": password.to_string(),
+      "remember": true,
+    });
 
     let client = reqwest::Client::new();
     let response = client.post(&format!("{}://{}/api/login", scheme.as_str(), host)).json(&credentials).send().await?;
-
-    if response.status() == StatusCode::UNAUTHORIZED {
-      return Err(UnifiedError::InvalidCredentials);
-    }
-    if response.status() != StatusCode::OK {
-      return Err(UnifiedError::Unknown);
-    }
 
     let cookies = response
       .headers()
@@ -101,17 +76,12 @@ impl Unified {
       .map(|cookie| format!("{}={}", cookie.name(), cookie.value()))
       .collect::<Vec<String>>();
 
+    response.json::<Response<Vec<()>>>().await?.short()?;
+
     Ok(Unified {
       scheme,
-      host,
+      host: host.to_owned(),
       token: cookies.join("; "),
     })
-  }
-
-  pub(crate) fn request(&self, method: Method, path: &str) -> RequestBuilder {
-    let client = Client::new();
-    let url = format!("{}://{}{}", self.scheme.as_str(), self.host, path);
-
-    client.request(method, &url).header("cookie", &self.token)
   }
 }

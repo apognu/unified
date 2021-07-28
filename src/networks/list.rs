@@ -6,7 +6,6 @@ use serde::Deserialize;
 
 use crate::{
   networks::{Network, NetworkRef},
-  unified::Response,
   Unified, UnifiedError,
 };
 
@@ -36,15 +35,9 @@ impl Unified {
   /// let networks = unifi.networks("default").await?;
   /// ```
   pub async fn networks(&self, site: &str) -> Result<Vec<Network>, UnifiedError> {
-    let response = self
-      .request(Method::GET, &format!("/api/s/{}/rest/networkconf", site))
-      .send()
-      .await?
-      .json::<Response<Vec<RemoteNetwork>>>()
-      .await?;
+    let response: Vec<RemoteNetwork> = self.request(Method::GET, &format!("/api/s/{}/rest/networkconf", site)).send().await?;
 
     let networks = response
-      .data
       .into_iter()
       .map(|network| {
         let subnet = network.ip_subnet.map(|ip| IpNet::from_str(&ip).ok()).flatten();
