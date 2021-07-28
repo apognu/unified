@@ -1,6 +1,7 @@
+use reqwest::Method;
 use serde_json::json;
 
-use crate::{clients::Client, unified::Method, UnifiedError};
+use crate::{clients::Client, UnifiedError};
 
 impl<'c> Client<'c> {
   /// Block the client from accessing the networks.
@@ -41,7 +42,7 @@ impl<'c> Client<'c> {
   pub async fn kick(&self) -> Result<(), UnifiedError> {
     self
       .unified
-      .request(Method::Post, &format!("/api/s/{}/cmd/stamgr", self.site))
+      .request(Method::POST, &format!("/api/s/{}/cmd/stamgr", self.site))
       .json(&json!({ "cmd": "kick-sta", "mac": self.mac.to_string() }))
       .send()
       .await?;
@@ -54,7 +55,7 @@ impl<'c> Client<'c> {
 
     self
       .unified
-      .request(Method::Post, &format!("/api/s/{}/cmd/stamgr", self.site))
+      .request(Method::POST, &format!("/api/s/{}/cmd/stamgr", self.site))
       .json(&json!({ "cmd": command, "mac": self.mac.to_string() }))
       .send()
       .await?;

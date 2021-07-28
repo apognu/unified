@@ -1,9 +1,10 @@
 use std::str::FromStr;
 
+use reqwest::Method;
 use serde::Deserialize;
 
 use crate::{
-  unified::{Method, Response},
+  unified::Response,
   wireless::{WirelessNetwork, WirelessNetworkRef, WirelessNetworkWpa},
   Unified, UnifiedError,
 };
@@ -38,7 +39,7 @@ impl Unified {
   /// ```
   pub async fn wireless_networks(&self, site: &str) -> Result<Vec<WirelessNetwork<'_>>, UnifiedError> {
     let response = self
-      .request(Method::Get, &format!("/api/s/{}/rest/wlanconf", site))
+      .request(Method::GET, &format!("/api/s/{}/rest/wlanconf", site))
       .send()
       .await?
       .json::<Response<Vec<RemoteWirelessNetwork>>>()

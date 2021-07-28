@@ -2,11 +2,12 @@ use std::{net::IpAddr, str::FromStr, time::Duration};
 
 use macaddr::MacAddr;
 use num_traits::FromPrimitive;
+use reqwest::Method;
 use serde::Deserialize;
 
 use crate::{
   devices::{Device, DeviceRef, DeviceState},
-  unified::{Method, Response},
+  unified::Response,
   Unified, UnifiedError,
 };
 
@@ -49,7 +50,7 @@ impl Unified {
   /// ```
   pub async fn devices(&self, site: &str) -> Result<Vec<Device>, UnifiedError> {
     let response = self
-      .request(Method::Get, &format!("/api/s/{}/stat/device", site))
+      .request(Method::GET, &format!("/api/s/{}/stat/device", site))
       .send()
       .await?
       .json::<Response<Vec<RemoteDevice>>>()

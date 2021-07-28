@@ -2,11 +2,12 @@ use std::{net::IpAddr, str::FromStr};
 
 use chrono::NaiveDateTime;
 use macaddr::MacAddr;
+use reqwest::Method;
 use serde::Deserialize;
 
 use crate::{
   clients::{Client, ClientRef},
-  unified::{Method, Response},
+  unified::Response,
   Unified, UnifiedError,
 };
 
@@ -47,7 +48,7 @@ impl Unified {
   /// ```
   pub async fn clients(&self, site: &str) -> Result<Vec<Client<'_>>, UnifiedError> {
     let response = self
-      .request(Method::Get, &format!("/api/s/{}/stat/sta", site))
+      .request(Method::GET, &format!("/api/s/{}/stat/sta", site))
       .send()
       .await?
       .json::<Response<Vec<RemoteClient>>>()

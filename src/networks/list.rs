@@ -1,11 +1,12 @@
 use std::str::FromStr;
 
 use ipnet::IpNet;
+use reqwest::Method;
 use serde::Deserialize;
 
 use crate::{
   networks::{Network, NetworkRef},
-  unified::{Method, Response},
+  unified::Response,
   Unified, UnifiedError,
 };
 
@@ -36,7 +37,7 @@ impl Unified {
   /// ```
   pub async fn networks(&self, site: &str) -> Result<Vec<Network>, UnifiedError> {
     let response = self
-      .request(Method::Get, &format!("/api/s/{}/rest/networkconf", site))
+      .request(Method::GET, &format!("/api/s/{}/rest/networkconf", site))
       .send()
       .await?
       .json::<Response<Vec<RemoteNetwork>>>()

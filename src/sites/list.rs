@@ -1,8 +1,9 @@
+use reqwest::Method;
 use serde::Deserialize;
 
 use crate::{
   sites::{Site, SiteHealth, SiteRef},
-  unified::{Method, Response},
+  unified::Response,
   Unified, UnifiedError,
 };
 
@@ -36,7 +37,7 @@ impl Unified {
   /// let sites = unifi.sites().await?;
   /// ```
   pub async fn sites(&self) -> Result<Vec<Site>, UnifiedError> {
-    let response = self.request(Method::Get, "/api/stat/sites").send().await?.json::<Response<Vec<RemoteSite>>>().await?;
+    let response = self.request(Method::GET, "/api/stat/sites").send().await?.json::<Response<Vec<RemoteSite>>>().await?;
 
     let sites = response
       .data

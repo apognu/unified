@@ -1,6 +1,7 @@
+use reqwest::Method;
 use serde_json::json;
 
-use crate::{unified::Method, wireless::WirelessNetwork, UnifiedError};
+use crate::{wireless::WirelessNetwork, UnifiedError};
 
 impl<'wn> WirelessNetwork<'wn> {
   /// Enable the wireless network.
@@ -32,7 +33,7 @@ impl<'wn> WirelessNetwork<'wn> {
   async fn set_state(&self, state: bool) -> Result<(), UnifiedError> {
     self
       .unified
-      .request(Method::Put, &format!("/api/s/{}/rest/wlanconf/{}", self.site, self.id))
+      .request(Method::PUT, &format!("/api/s/{}/rest/wlanconf/{}", self.site, self.id))
       .json(&json!({ "enabled": state }))
       .send()
       .await?;
@@ -50,7 +51,7 @@ impl<'wn> WirelessNetwork<'wn> {
   /// }
   /// ```
   pub async fn delete(&self) -> Result<(), UnifiedError> {
-    self.unified.request(Method::Delete, &format!("/api/s/{}/rest/wlanconf/{}", self.site, self.id)).send().await?;
+    self.unified.request(Method::DELETE, &format!("/api/s/{}/rest/wlanconf/{}", self.site, self.id)).send().await?;
 
     Ok(())
   }

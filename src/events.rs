@@ -1,10 +1,8 @@
 use chrono::NaiveDateTime;
+use reqwest::Method;
 use serde::Deserialize;
 
-use crate::{
-  unified::{Method, Response},
-  Unified, UnifiedError,
-};
+use crate::{unified::Response, Unified, UnifiedError};
 
 #[derive(Debug)]
 pub struct Event {
@@ -36,7 +34,7 @@ impl Unified {
       None => format!("/api/s/{}/stat/event", site),
     };
 
-    let response = self.request(Method::Get, &url).send().await?.json::<Response<Vec<RemoteEvent>>>().await?;
+    let response = self.request(Method::GET, &url).send().await?.json::<Response<Vec<RemoteEvent>>>().await?;
 
     let events = response
       .data

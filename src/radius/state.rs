@@ -1,4 +1,6 @@
-use crate::{radius::RadiusUser, unified::Method, UnifiedError};
+use reqwest::Method;
+
+use crate::{radius::RadiusUser, UnifiedError};
 
 impl<'ru> RadiusUser<'ru> {
   /// Delete the RADIUS user.
@@ -11,7 +13,7 @@ impl<'ru> RadiusUser<'ru> {
   /// }
   /// ```
   pub async fn delete(&self) -> Result<(), UnifiedError> {
-    self.unified.request(Method::Delete, &format!("/api/s/{}/rest/account/{}", self.site, self.id)).send().await?;
+    self.unified.request(Method::DELETE, &format!("/api/s/{}/rest/account/{}", self.site, self.id)).send().await?;
 
     Ok(())
   }

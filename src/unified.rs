@@ -1,5 +1,5 @@
 use cookie::Cookie;
-use reqwest::{Client, RequestBuilder, StatusCode};
+use reqwest::{Client, Method, RequestBuilder, StatusCode};
 use serde::{Deserialize, Serialize};
 
 use crate::UnifiedError;
@@ -25,8 +25,8 @@ pub enum Scheme {
 impl Scheme {
   fn as_str(&self) -> &'static str {
     match self {
-      &Self::Http => "http",
-      &Self::Https => "https",
+      Self::Http => "http",
+      Self::Https => "https",
     }
   }
 }
@@ -36,14 +36,6 @@ pub struct Unified {
   scheme: Scheme,
   host: String,
   token: String,
-}
-
-/// HTTP scheme used to connect the a Unifi controller.
-pub(crate) enum Method {
-  Get,
-  Post,
-  Put,
-  Delete,
 }
 
 impl Unified {
@@ -120,13 +112,6 @@ impl Unified {
     let client = Client::new();
     let url = format!("{}://{}{}", self.scheme.as_str(), self.host, path);
 
-    let builder = match method {
-      Method::Get => client.get(&url),
-      Method::Post => client.post(&url),
-      Method::Put => client.put(&url),
-      Method::Delete => client.delete(&url),
-    };
-
-    builder.header("cookie", &self.token)
+    client.request(method, &url).header("cookie", &self.token)
   }
 }
