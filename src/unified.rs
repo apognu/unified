@@ -1,18 +1,10 @@
 use cookie::Cookie;
-use serde::Serialize;
 use serde_json::json;
 
 use crate::{
   http::{Response, Scheme},
   UnifiedError,
 };
-
-#[derive(Serialize)]
-struct Credentials {
-  username: String,
-  password: String,
-  remember: bool,
-}
 
 /// Handle to an authenticated connection to a Unifi controller.
 pub struct Unified {
