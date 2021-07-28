@@ -43,7 +43,7 @@ impl<'c> Client<'c> {
     self
       .unified
       .request(Method::POST, &format!("/api/s/{}/cmd/stamgr", self.site))
-      .body(|r| r.json(&json!({ "cmd": "kick-sta", "mac": self.mac.to_string() })))
+      .map(|r| r.json(&json!({ "cmd": "kick-sta", "mac": self.mac.to_string() })))
       .send()
       .await?;
 
@@ -56,7 +56,7 @@ impl<'c> Client<'c> {
     self
       .unified
       .request(Method::POST, &format!("/api/s/{}/cmd/stamgr", self.site))
-      .body(|r| r.json(&json!({ "cmd": command, "mac": self.mac.to_string() })))
+      .map(|r| r.json(&json!({ "cmd": command, "mac": self.mac.to_string() })))
       .send()
       .await?;
 

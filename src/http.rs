@@ -56,7 +56,7 @@ impl<T> UnifiRequest<T>
 where
   T: for<'de> Deserialize<'de>,
 {
-  pub fn body<F>(mut self, mut callback: F) -> UnifiRequest<T>
+  pub fn map<F>(mut self, mut callback: F) -> UnifiRequest<T>
   where
     F: FnMut(RequestBuilder) -> RequestBuilder,
   {
