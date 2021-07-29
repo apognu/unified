@@ -64,8 +64,14 @@ where
     self
   }
 
-  pub async fn send(self) -> Result<T, UnifiedError> {
+  pub async fn query(self) -> Result<T, UnifiedError> {
     Ok(self.builder.send().await?.json::<Response<T>>().await?.short()?)
+  }
+
+  pub async fn send(self) -> Result<(), UnifiedError> {
+    self.builder.send().await?.json::<Response<Vec<()>>>().await?.short()?;
+
+    Ok(())
   }
 }
 

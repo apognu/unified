@@ -32,7 +32,7 @@ impl Unified {
       None => format!("/api/s/{}/stat/alarm", site),
     };
 
-    let response: Vec<RemoteAlert> = self.request(Method::GET, &url).send().await?;
+    let response: Vec<RemoteAlert> = self.request(Method::GET, &url).query().await?;
 
     let events = response
       .into_iter()

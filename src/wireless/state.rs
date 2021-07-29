@@ -35,7 +35,7 @@ impl<'wn> WirelessNetwork<'wn> {
       .unified
       .request(Method::PUT, &format!("/api/s/{}/rest/wlanconf/{}", self.site, self.id))
       .map(|r| r.json(&json!({ "enabled": state })))
-      .send()
+      .query()
       .await?;
 
     Ok(())
@@ -51,7 +51,7 @@ impl<'wn> WirelessNetwork<'wn> {
   /// }
   /// ```
   pub async fn delete(&self) -> Result<(), UnifiedError> {
-    self.unified.request(Method::DELETE, &format!("/api/s/{}/rest/wlanconf/{}", self.site, self.id)).send().await?;
+    self.unified.request(Method::DELETE, &format!("/api/s/{}/rest/wlanconf/{}", self.site, self.id)).query().await?;
 
     Ok(())
   }

@@ -34,7 +34,7 @@ impl Unified {
       None => format!("/api/s/{}/stat/event", site),
     };
 
-    let response: Vec<RemoteEvent> = self.request(Method::GET, &url).send().await?;
+    let response: Vec<RemoteEvent> = self.request(Method::GET, &url).query().await?;
 
     let events = response
       .into_iter()

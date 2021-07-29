@@ -44,7 +44,7 @@ impl<'c> Client<'c> {
       .unified
       .request(Method::POST, &format!("/api/s/{}/cmd/stamgr", self.site))
       .map(|r| r.json(&json!({ "cmd": "kick-sta", "mac": self.mac.to_string() })))
-      .send()
+      .query()
       .await?;
 
     Ok(())
@@ -57,7 +57,7 @@ impl<'c> Client<'c> {
       .unified
       .request(Method::POST, &format!("/api/s/{}/cmd/stamgr", self.site))
       .map(|r| r.json(&json!({ "cmd": command, "mac": self.mac.to_string() })))
-      .send()
+      .query()
       .await?;
 
     Ok(())

@@ -20,7 +20,7 @@ pub use crate::{
   error::UnifiedError,
   http::Scheme,
   networks::{Network, NetworkRef},
-  radius::{RadiusUser, RadiusUserRef},
+  radius::{RadiusUser, RadiusUserBuilder, RadiusUserRef, TunnelMediumType, TunnelType},
   sites::{Site, SiteHealth, SiteRef},
   unified::Unified,
   wireless::{WirelessNetwork, WirelessNetworkRef, WirelessNetworkWpa},

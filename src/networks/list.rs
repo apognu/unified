@@ -35,7 +35,7 @@ impl Unified {
   /// let networks = unifi.networks("default").await?;
   /// ```
   pub async fn networks(&self, site: &str) -> Result<Vec<Network>, UnifiedError> {
-    let response: Vec<RemoteNetwork> = self.request(Method::GET, &format!("/api/s/{}/rest/networkconf", site)).send().await?;
+    let response: Vec<RemoteNetwork> = self.request(Method::GET, &format!("/api/s/{}/rest/networkconf", site)).query().await?;
 
     let networks = response
       .into_iter()

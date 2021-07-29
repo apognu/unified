@@ -36,7 +36,7 @@ impl Unified {
   /// let sites = unifi.sites().await?;
   /// ```
   pub async fn sites(&self) -> Result<Vec<Site>, UnifiedError> {
-    let response: Vec<RemoteSite> = self.request(Method::GET, "/api/stat/sites").send().await?;
+    let response: Vec<RemoteSite> = self.request(Method::GET, "/api/stat/sites").query().await?;
 
     let sites = response
       .into_iter()

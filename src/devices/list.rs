@@ -48,7 +48,7 @@ impl Unified {
   /// let devices = unifi.devices("default").await?;
   /// ```
   pub async fn devices(&self, site: &str) -> Result<Vec<Device>, UnifiedError> {
-    let response: Vec<RemoteDevice> = self.request(Method::GET, &format!("/api/s/{}/stat/device", site)).send().await?;
+    let response: Vec<RemoteDevice> = self.request(Method::GET, &format!("/api/s/{}/stat/device", site)).query().await?;
 
     let devices = response
       .into_iter()
