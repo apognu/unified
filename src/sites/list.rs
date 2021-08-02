@@ -1,27 +1,6 @@
 use reqwest::Method;
-use serde::Deserialize;
 
-use crate::{
-  sites::{Site, SiteHealth, SiteRef},
-  Unified, UnifiedError,
-};
-
-#[derive(Deserialize)]
-struct RemoteSite {
-  #[serde(rename = "_id")]
-  id: String,
-  name: String,
-  #[serde(rename = "desc")]
-  description: String,
-  num_new_alarms: u64,
-  health: Vec<RemoteSiteHealth>,
-}
-
-#[derive(Deserialize)]
-struct RemoteSiteHealth {
-  subsystem: String,
-  status: String,
-}
+use crate::{sites::types::*, Unified, UnifiedError};
 
 impl Unified {
   /// List all configured sites on the controller.

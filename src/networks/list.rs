@@ -1,26 +1,9 @@
-use std::str::FromStr;
+use std::{net::IpAddr, str::FromStr, time::Duration};
 
 use ipnet::IpNet;
 use reqwest::Method;
-use serde::Deserialize;
 
-use crate::{
-  networks::{Network, NetworkRef},
-  Unified, UnifiedError,
-};
-
-#[derive(Deserialize)]
-pub struct RemoteNetwork {
-  #[serde(rename = "_id")]
-  pub id: String,
-  pub name: String,
-  #[serde(default = "crate::util::is_true")]
-  pub enabled: bool,
-  pub purpose: String,
-  pub ip_subnet: Option<String>,
-  pub domain_name: Option<String>,
-  pub vlan: Option<String>,
-}
+use crate::{networks::types::*, Unified, UnifiedError};
 
 impl Unified {
   /// List all configured networks on the given site.
@@ -34,22 +17,56 @@ impl Unified {
   /// ```
   /// let networks = unifi.networks("default").await?;
   /// ```
-  pub async fn networks(&self, site: &str) -> Result<Vec<Network>, UnifiedError> {
+  pub async fn networks(&self, site: &str) -> Result<Vec<Network<'_>>, UnifiedError> {
     let response: Vec<RemoteNetwork> = self.request(Method::GET, &format!("/api/s/{}/rest/networkconf", site)).query().await?;
 
     let networks = response
       .into_iter()
       .map(|network| {
-        let subnet = network.ip_subnet.map(|ip| IpNet::from_str(&ip).ok()).flatten();
+        let group = match (network.network_group, network.wan_network_group) {
+          (Some(group), None) => NetworkGroup::Lan(group.into()),
+          (None, Some(group)) => NetworkGroup::Wan(group.into()),
+          _ => NetworkGroup::None,
+        };
+
+        let subnet = network.subnet.and_then(|subnet| IpNet::from_str(&subnet).ok());
+        let dhcpd_start = network.dhcpd_start.and_then(|ip| IpAddr::from_str(&ip).ok());
+        let dhcpd_end = network.dhcpd_end.and_then(|ip| IpAddr::from_str(&ip).ok());
+
+        let vpn = match network.vpn_type {
+          Some(kind) => Some(NetworkVpn {
+            kind: VpnType::from(kind),
+            preshared_key: network.preshared_key,
+          }),
+
+          None => None,
+        };
 
         Network {
+          unified: self,
+          site: site.to_string(),
+
           id: network.id,
           name: network.name,
           enabled: network.enabled,
+
+          purpose: NetworkPurpose::from(network.purpose),
+          group,
+
           subnet,
-          purpose: network.purpose,
           domain: network.domain_name,
+
+          vlan_enabled: network.vlan_enabled,
           vlan: network.vlan.map(|vlan| u16::from_str(&vlan).ok()).flatten(),
+
+          dhcp: Some(NetworkDhcp {
+            enabled: network.dhcpd_enabled,
+            start: dhcpd_start,
+            end: dhcpd_end,
+            lease_duration: network.dhcpd_lease_time.map(Duration::from_secs),
+          }),
+
+          vpn,
         }
       })
       .collect();
@@ -73,7 +90,7 @@ impl Unified {
   /// ```
   /// let network = unifi.network("default", ClientRef::Subnet("10.10.0.0/16")).await?;
   /// ```
-  pub async fn network(&self, site: &str, network_ref: NetworkRef<'_>) -> Result<Option<Network>, UnifiedError> {
+  pub async fn network(&self, site: &str, network_ref: NetworkRef<'_>) -> Result<Option<Network<'_>>, UnifiedError> {
     let subnet = match network_ref {
       NetworkRef::Subnet(subnet) => IpNet::from_str(subnet).ok(),
       _ => None,

@@ -1,7 +1,7 @@
 use reqwest::Method;
 use serde_json::json;
 
-use crate::{clients::Client, UnifiedError};
+use crate::{clients::types::Client, UnifiedError};
 
 impl<'c> Client<'c> {
   /// Block the client from accessing the networks.

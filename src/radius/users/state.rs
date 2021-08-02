@@ -1,7 +1,7 @@
 use reqwest::Method;
 
 use crate::{
-  radius::{builder::RadiusUserBuilder, list::RemoteRadiusUser, RadiusUser},
+  radius::users::{builder::RadiusUserBuilder, types::*},
   Unified, UnifiedError,
 };
 

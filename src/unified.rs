@@ -2,7 +2,7 @@ use cookie::Cookie;
 use serde_json::json;
 
 use crate::{
-  http::{Response, Scheme},
+  http::{Response, Scheme, UdmProAuthResponse},
   UnifiedError,
 };
 
@@ -11,53 +11,106 @@ pub struct Unified {
   pub(crate) scheme: Scheme,
   pub(crate) host: String,
   pub(crate) token: String,
+  pub(crate) tls_verify: bool,
+  pub(crate) is_udm_pro: bool,
 }
 
 impl Unified {
-  /// Creates a Unified handle with a separately acquired token.
+  /// Creates a Unified handle.
   ///
   /// # Arguments
   ///
-  ///  * `scheme`  - Whether the connection should use HTTP or HTTPS
   ///  * `host`    - Hostname and port of the Unifi controller
-  ///  * `token`   - Previously acquired authentication token
   ///
   /// # Example
   ///
   /// ```
-  /// let unifi = Unified::new(Scheme::Https, "unifi.acme.corp", "unifises=abcdef").await?;
+  /// let unifi = Unified::new("unifi.acme.corp");
   /// ```
-  pub fn new(scheme: Scheme, host: &str, token: &str) -> Unified {
+  pub fn new(host: &str) -> Unified {
     Unified {
-      scheme,
+      scheme: Scheme::Https,
       host: host.to_string(),
-      token: token.to_string(),
+      token: String::new(),
+      tls_verify: true,
+      is_udm_pro: false,
     }
   }
 
-  /// Creates a Unified handle from a username and password.
+  /// Use HTTP instead of HTTPS for the connection to the controller.
+  ///
+  /// # Example
+  ///
+  /// ```
+  /// let unifi = Unified::new("unifi.acme.corp").plaintext();
+  /// ```
+  pub fn plaintext(mut self) -> Unified {
+    self.scheme = Scheme::Http;
+    self
+  }
+
+  /// Accept self-signed certificates.
+  ///
+  /// # Example
+  ///
+  /// ```
+  /// let unifi = Unified::new("unifi.acme.corp").no_tls_verify();
+  /// ```
+  pub fn no_tls_verify(mut self) -> Unified {
+    self.tls_verify = false;
+    self
+  }
+
+  /// The controller runs on a Unifi Dream Machine Pro.
+  ///
+  /// # Example
+  ///
+  /// ```
+  /// let unifi = Unified::new("unifi.acme.corp").udm_pro();
+  /// ```
+  pub fn udm_pro(mut self) -> Unified {
+    self.is_udm_pro = true;
+    self
+  }
+
+  /// Use a previously acquired token.
+  ///
+  /// # Example
+  ///
+  /// ```
+  /// let unifi = Unified::new("unifi.acme.corp").set_token("unifises=abcdefgh");
+  /// ```
+  pub fn set_token(mut self, token: &str) -> Unified {
+    self.token = token.to_string();
+    self
+  }
+
+  /// Authenticate into a Unifi controller with the provided username and password.
   ///
   /// # Arguments
   ///
-  ///  * `scheme`   - Whether the connection should use HTTP or HTTPS
-  ///  * `host`     - Hostname and port of the Unifi controller
   ///  * `username` - Username of the account
   ///  * `password` - Password of the account
   ///
   /// # Example
   ///
   /// ```
-  /// let unifi = Unified::auth(Scheme::Https, "unifi.acme.corp", "joe.shmoe", "mypassword").await?;
+  /// let unifi = Unified::new("unifi.acme.corp").auth("joe.shmoe", "mypassword").await?;
   /// ```
-  pub async fn auth(scheme: Scheme, host: &str, username: &str, password: &str) -> Result<Unified, UnifiedError> {
+  pub async fn auth(mut self, username: &str, password: &str) -> Result<Unified, UnifiedError> {
     let credentials = json!({
       "username": username.to_string(),
       "password": password.to_string(),
       "remember": true,
     });
 
-    let client = reqwest::Client::new();
-    let response = client.post(&format!("{}://{}/api/login", scheme.as_str(), host)).json(&credentials).send().await?;
+    let url = match self.is_udm_pro {
+      true => format!("{}://{}/api/auth/login", self.scheme.as_str(), self.host),
+      false => format!("{}://{}/api/login", self.scheme.as_str(), self.host),
+    };
+
+    let client = reqwest::ClientBuilder::new().danger_accept_invalid_certs(true).build()?;
+    let response = client.post(&url).json(&credentials).send().await?;
 
     let cookies = response
       .headers()
@@ -68,12 +121,17 @@ impl Unified {
       .map(|cookie| format!("{}={}", cookie.name(), cookie.value()))
       .collect::<Vec<String>>();
 
-    response.json::<Response<Vec<()>>>().await?.short()?;
+    match self.is_udm_pro {
+      true => {
+        response.json::<UdmProAuthResponse>().await?.short()?;
+      }
+      false => {
+        response.json::<Response<Vec<()>>>().await?.short()?;
+      }
+    }
 
-    Ok(Unified {
-      scheme,
-      host: host.to_owned(),
-      token: cookies.join("; "),
-    })
+    self.token = cookies.join("; ");
+
+    Ok(self)
   }
 }

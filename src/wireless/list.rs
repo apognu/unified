@@ -1,28 +1,8 @@
 use std::str::FromStr;
 
 use reqwest::Method;
-use serde::Deserialize;
 
-use crate::{
-  wireless::{WirelessNetwork, WirelessNetworkRef, WirelessNetworkWpa},
-  Unified, UnifiedError,
-};
-
-#[derive(Deserialize)]
-pub struct RemoteWirelessNetwork {
-  #[serde(rename = "_id")]
-  id: String,
-  name: String,
-  enabled: bool,
-  security: String,
-  wpa_mode: String,
-  wpa_enc: String,
-  #[serde(rename = "x_passphrase")]
-  passphrase: Option<String>,
-  vlan: Option<String>,
-  #[serde(default)]
-  hide_ssid: bool,
-}
+use crate::{wireless::types::*, Unified, UnifiedError};
 
 impl Unified {
   /// List all configured wireless networks on the given site.
@@ -63,7 +43,7 @@ impl Unified {
           name: network.name,
           enabled: network.enabled,
           advertised: !network.hide_ssid,
-          security: network.security,
+          security: WirelessNetworkSecurity::from(network.security),
           wpa,
           passphrase,
           vlan: network.vlan.map(|vlan| u16::from_str(&vlan).ok()).flatten(),

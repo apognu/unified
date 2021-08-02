@@ -15,13 +15,21 @@ mod util;
 mod wireless;
 
 pub use crate::{
-  clients::{Client, ClientRef},
-  devices::{Device, DeviceRef, DeviceState},
+  clients::types::{Client, ClientRef},
+  devices::types::{Device, DeviceRef, DeviceState},
   error::UnifiedError,
-  http::Scheme,
-  networks::{Network, NetworkRef},
-  radius::{RadiusUser, RadiusUserBuilder, RadiusUserRef, TunnelMediumType, TunnelType},
-  sites::{Site, SiteHealth, SiteRef},
+  networks::{
+    builder::NetworkBuilder,
+    types::{Network, NetworkGroup, NetworkPurpose, NetworkRef},
+  },
+  radius::{
+    profiles::types::RadiusProfile,
+    users::{
+      builder::RadiusUserBuilder,
+      types::{RadiusUser, RadiusUserRef, TunnelMediumType, TunnelType},
+    },
+  },
+  sites::types::{Site, SiteHealth, SiteRef},
   unified::Unified,
-  wireless::{WirelessNetwork, WirelessNetworkRef, WirelessNetworkWpa},
+  wireless::types::{WirelessNetwork, WirelessNetworkRef, WirelessNetworkWpa},
 };

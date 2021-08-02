@@ -3,35 +3,8 @@ use std::{net::IpAddr, str::FromStr};
 use chrono::NaiveDateTime;
 use macaddr::MacAddr;
 use reqwest::Method;
-use serde::Deserialize;
 
-use crate::{
-  clients::{Client, ClientRef},
-  Unified, UnifiedError,
-};
-
-#[derive(Deserialize)]
-struct RemoteClient {
-  #[serde(rename = "_id")]
-  id: String,
-  name: Option<String>,
-  mac: String,
-  oui: String,
-  hostname: Option<String>,
-  ip: Option<String>,
-  #[serde(rename = "1x_identity")]
-  identity: Option<String>,
-  last_seen: Option<i64>,
-  is_wired: bool,
-  is_guest: bool,
-  authorized: bool,
-  pub rx_bytes: u64,
-  pub tx_bytes: u64,
-  #[serde(rename = "wired-rx_bytes", default)]
-  pub wired_rx_bytes: u64,
-  #[serde(rename = "wired-tx_bytes", default)]
-  pub wired_tx_bytes: u64,
-}
+use crate::{clients::types::*, Unified, UnifiedError};
 
 impl Unified {
   /// List all known network clients on the given site.

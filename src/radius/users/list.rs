@@ -1,41 +1,9 @@
 use std::str::FromStr;
 
-use num_traits::{FromPrimitive, ToPrimitive};
+use num_traits::FromPrimitive;
 use reqwest::Method;
-use serde::{Deserialize, Serialize};
 
-use crate::{
-  radius::{RadiusUser, RadiusUserRef},
-  Unified, UnifiedError,
-};
-
-#[derive(Debug, Serialize, Deserialize)]
-pub(crate) struct RemoteRadiusUser {
-  #[serde(skip_serializing, rename = "_id")]
-  pub(crate) id: String,
-  pub(crate) name: String,
-  #[serde(rename = "x_password")]
-  pub(crate) password: String,
-  #[serde(skip_serializing_if = "Option::is_none")]
-  pub(crate) vlan: Option<String>,
-  #[serde(skip_serializing_if = "Option::is_none")]
-  pub(crate) tunnel_type: Option<u16>,
-  #[serde(skip_serializing_if = "Option::is_none")]
-  pub(crate) tunnel_medium_type: Option<u16>,
-}
-
-impl From<RadiusUser<'_>> for RemoteRadiusUser {
-  fn from(user: RadiusUser) -> RemoteRadiusUser {
-    RemoteRadiusUser {
-      id: user.id,
-      name: user.name,
-      password: user.password,
-      vlan: user.vlan.map(|vlan| vlan.to_string()),
-      tunnel_type: user.tunnel_type.and_then(|tt| ToPrimitive::to_u16(&tt)),
-      tunnel_medium_type: user.tunnel_medium_type.and_then(|tmt| ToPrimitive::to_u16(&tmt)),
-    }
-  }
-}
+use crate::{radius::users::types::*, Unified, UnifiedError};
 
 impl Unified {
   /// List all configured RADIUS users.

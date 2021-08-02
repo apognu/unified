@@ -1,11 +1,11 @@
 use std::marker::PhantomData;
 
-use reqwest::{Client, Method, RequestBuilder};
+use reqwest::{Method, RequestBuilder};
 use serde::Deserialize;
 
 use crate::{Unified, UnifiedError};
 
-pub enum Scheme {
+pub(crate) enum Scheme {
   Http,
   Https,
 }
@@ -46,6 +46,24 @@ impl<T> Response<T> {
   }
 }
 
+#[derive(Deserialize)]
+pub(crate) struct UdmProAuthResponse {
+  errors: Option<Vec<String>>,
+}
+
+impl UdmProAuthResponse {
+  pub(crate) fn short(self) -> Result<(), UnifiedError> {
+    if self.errors.is_some() {
+      return match self.errors.unwrap().get(0) {
+        Some(message) => Err(UnifiedError::UnifiError(message.to_owned())),
+        None => Err(UnifiedError::Unknown),
+      };
+    }
+
+    Ok(())
+  }
+}
+
 /// HTTP scheme to be used for the connection to the Unifi controller.
 pub(crate) struct UnifiRequest<F> {
   pub(crate) builder: RequestBuilder,
@@ -80,8 +98,12 @@ impl Unified {
   where
     T: for<'ser> Deserialize<'ser>,
   {
-    let client = Client::new();
-    let url = format!("{}://{}{}", self.scheme.as_str(), self.host, path);
+    let client = reqwest::ClientBuilder::new().danger_accept_invalid_certs(true).build().unwrap();
+
+    let url = match self.is_udm_pro {
+      true => format!("{}://{}/proxy/network{}", self.scheme.as_str(), self.host, path),
+      false => format!("{}://{}{}", self.scheme.as_str(), self.host, path),
+    };
 
     UnifiRequest {
       builder: client.request(method, &url).header("cookie", &self.token),

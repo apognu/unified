@@ -1,7 +1,7 @@
 use reqwest::Method;
 use serde_json::json;
 
-use crate::{wireless::WirelessNetwork, UnifiedError};
+use crate::{wireless::types::*, UnifiedError};
 
 impl<'wn> WirelessNetwork<'wn> {
   /// Enable the wireless network.

@@ -3,37 +3,8 @@ use std::{net::IpAddr, str::FromStr, time::Duration};
 use macaddr::MacAddr;
 use num_traits::FromPrimitive;
 use reqwest::Method;
-use serde::Deserialize;
 
-use crate::{
-  devices::{Device, DeviceRef, DeviceState},
-  Unified, UnifiedError,
-};
-
-#[derive(Deserialize)]
-struct RemoteDevice {
-  #[serde(rename = "_id")]
-  id: String,
-  name: String,
-  model: String,
-  mac: String,
-  ip: String,
-  #[serde(default)]
-  network_table: Vec<Network>,
-  version: String,
-  upgradable: bool,
-  state: u32,
-  uptime: u64,
-  rx_bytes: u64,
-  tx_bytes: u64,
-}
-
-#[derive(Deserialize)]
-pub struct Network {
-  #[serde(rename = "attr_no_delete", default)]
-  persistent: bool,
-  ip: String,
-}
+use crate::{devices::types::*, Unified, UnifiedError};
 
 impl Unified {
   /// List all adopted device on the given site.
@@ -110,14 +81,10 @@ impl Unified {
       _ => None,
     };
 
-    Ok(self.devices(site).await?.into_iter().find(|device| {
-      println!("{:?} | {:?}", device.ip, ip);
-
-      match device_ref {
-        DeviceRef::Id(id) => device.id == id,
-        DeviceRef::Mac(_) => mac.map(|mac| device.mac == mac).unwrap_or_default(),
-        DeviceRef::Ip(_) => device.ip == ip,
-      }
+    Ok(self.devices(site).await?.into_iter().find(|device| match device_ref {
+      DeviceRef::Id(id) => device.id == id,
+      DeviceRef::Mac(_) => mac.map(|mac| device.mac == mac).unwrap_or_default(),
+      DeviceRef::Ip(_) => device.ip == ip,
     }))
   }
 }

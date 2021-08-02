@@ -1,4 +1,4 @@
-use crate::radius::{RadiusUser, TunnelMediumType, TunnelType};
+use crate::radius::users::types::*;
 
 /// Helper builder to create new RADIUS users.
 ///
