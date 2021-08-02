@@ -26,6 +26,7 @@ struct RemoteAlert {
 }
 
 impl Unified {
+  /// List important alerts regarding the network.
   pub async fn alerts(&self, site: &str, limit: Option<u64>) -> Result<Vec<Alert>, UnifiedError> {
     let url = match limit {
       Some(limit) => format!("/api/s/{}/stat/alarm?_limit={}", site, limit),

@@ -50,6 +50,7 @@ impl Unified {
           wpa,
           passphrase,
           vlan: network.vlan.map(|vlan| u16::from_str(&vlan).ok()).flatten(),
+          radius_profile: network.radius_profile,
         }
       })
       .collect();

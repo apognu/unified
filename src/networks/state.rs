@@ -6,7 +6,8 @@ use crate::{
 };
 
 impl<'n> Network<'n> {
-  pub fn builder(unified: &'n Unified, site: &str, name: &str, purpose: NetworkPurpose, group: NetworkGroup<'n>) -> NetworkBuilder<'n> {
+  /// Create a builder for a network.
+  pub fn builder(unified: &'n Unified, site: &str, name: &str, purpose: NetworkPurpose, group: NetworkGroup) -> NetworkBuilder<'n> {
     NetworkBuilder {
       network: Network {
         unified,
@@ -31,6 +32,7 @@ impl<'n> Network<'n> {
     }
   }
 
+  /// Create a network.
   pub async fn create(self) -> Result<(), UnifiedError> {
     let body: RemoteNetwork = self.clone().into();
 
@@ -44,6 +46,7 @@ impl<'n> Network<'n> {
     Ok(())
   }
 
+  /// Delete the network.
   pub async fn delete(self) -> Result<(), UnifiedError> {
     self
       .unified

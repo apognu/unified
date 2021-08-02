@@ -1,3 +1,7 @@
+#![deny(missing_docs)]
+
+//! # unified
+
 #[macro_use]
 extern crate derivative;
 

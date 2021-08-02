@@ -9,13 +9,16 @@ pub struct RemoteApGroup {
   pub name: String,
 }
 
+/// Group of related wireless Access Points
 #[derive(Clone, Derivative)]
 #[derivative(Debug)]
 pub struct ApGroup<'g> {
   #[derivative(Debug = "ignore")]
-  pub unified: &'g Unified,
-  pub site: String,
+  pub(crate) unified: &'g Unified,
+  pub(crate) site: String,
 
+  /// Internal ID
   pub id: String,
+  /// Name for the access point group
   pub name: String,
 }

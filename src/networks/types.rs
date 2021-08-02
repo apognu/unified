@@ -1,4 +1,4 @@
-use std::{borrow::Cow, net::IpAddr, time::Duration};
+use std::{net::IpAddr, time::Duration};
 
 use ipnet::IpNet;
 use serde::{Deserialize, Serialize};
@@ -46,8 +46,8 @@ impl From<Network<'_>> for RemoteNetwork {
   fn from(network: Network) -> RemoteNetwork {
     let (lan_group, wan_group) = match network.group {
       NetworkGroup::None => (None, None),
-      NetworkGroup::Lan(group) => (Some(group.to_string()), None),
-      NetworkGroup::Wan(group) => (None, Some(group.to_string())),
+      NetworkGroup::Lan(group) => (Some(group), None),
+      NetworkGroup::Wan(group) => (None, Some(group)),
     };
 
     RemoteNetwork {
@@ -78,12 +78,17 @@ impl From<Network<'_>> for RemoteNetwork {
 
 /// Representation of the attribute used to select a wired network.
 pub enum NetworkRef<'r> {
+  /// Select the network by its internal ID
   Id(&'r str),
+  /// Select the network by its name
   Name(&'r str),
+  /// Select the network by its domain name
   Domain(&'r str),
+  /// Select the network by its subnet
   Subnet(&'r str),
 }
 
+#[allow(missing_docs)]
 #[derive(Debug, Clone, Copy)]
 pub enum NetworkPurpose {
   Corporate,
@@ -129,11 +134,15 @@ where
   }
 }
 
+/// Physical interface on which the network will operate
 #[derive(Debug, Clone)]
-pub enum NetworkGroup<'ng> {
+pub enum NetworkGroup {
+  /// No network group, this should not be used
   None,
-  Lan(Cow<'ng, str>),
-  Wan(Cow<'ng, str>),
+  /// A LAN interface (LAN1, LAN2, etc.)
+  Lan(String),
+  /// A WAN interface (WAN1, WAN2, etc.)
+  Wan(String),
 }
 
 #[derive(Debug, Clone)]
@@ -174,20 +183,32 @@ pub struct Network<'n> {
   pub(crate) unified: &'n Unified,
   pub(crate) site: String,
 
+  /// Network internal ID
   pub id: String,
+  /// Network name
   pub name: String,
+  /// Is the network enabled?
   pub enabled: bool,
 
+  /// Type of network
   pub purpose: NetworkPurpose,
-  pub group: NetworkGroup<'n>,
+  /// Physical interface for the network
+  pub group: NetworkGroup,
 
+  /// "Gateway/subnet" for the network. Should contain the address of the
+  /// gateway, and the CIDR of its subnet (e.g. "10.0.0.254/24").
   pub subnet: Option<IpNet>,
+  /// Domain name for the network
   pub domain: Option<String>,
 
+  /// Enable VLAN-tagging on the network
   pub vlan_enabled: bool,
+  /// VLAN ID for this network
   pub vlan: Option<u16>,
 
+  /// Configure DHCP on this network
   pub dhcp: Option<NetworkDhcp>,
+  /// Configure a VPN on this network
   pub vpn: Option<NetworkVpn>,
 }
 

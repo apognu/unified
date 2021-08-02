@@ -23,6 +23,8 @@ pub(super) struct RemoteWirelessNetwork {
   pub vlan: Option<String>,
   #[serde(default)]
   pub hide_ssid: bool,
+  #[serde(rename = "radiusprofile_id", skip_serializing_if = "Option::is_none")]
+  pub radius_profile: Option<String>,
 }
 
 impl From<WirelessNetwork<'_>> for RemoteWirelessNetwork {
@@ -40,13 +42,16 @@ impl From<WirelessNetwork<'_>> for RemoteWirelessNetwork {
       passphrase: network.passphrase,
       vlan: network.vlan.map(|vlan| vlan.to_string()),
       hide_ssid: !network.advertised,
+      radius_profile: network.radius_profile,
     }
   }
 }
 
 /// Representation of the attribute used to select a wireless network.
 pub enum WirelessNetworkRef<'r> {
+  /// Select the wireless network by its internal ID
   Id(&'r str),
+  /// Select the internal network by its SSID
   Ssid(&'r str),
 }
 
@@ -58,19 +63,33 @@ pub struct WirelessNetwork<'wn> {
   pub(crate) unified: &'wn Unified,
   pub(crate) site: String,
 
+  /// Internal ID
   pub id: String,
+  /// SSID for the wireless network
   pub name: String,
+  /// Is this network enabled?
   pub enabled: bool,
+  /// Logical network should traffic from this wireless network by put on
   pub network: Option<String>,
+  /// Access Point group this wireless network will be broadcast on
   pub ap_groups: Vec<String>,
+  /// Wireless band this wireless network will be broadcast on
   pub band: Option<WirelessBand>,
+  /// Should this SSID be advertised?
   pub advertised: bool,
+  /// Security type for the wireless network
   pub security: WirelessNetworkSecurity,
+  /// Security configuration for WPA2-PSK
   pub wpa: Option<WirelessNetworkWpa>,
+  /// Passphrase, if applicable
   pub passphrase: Option<String>,
+  /// VLAN ID traffic on this wireless network should be tagged with
   pub vlan: Option<u16>,
+  /// RADIUS profile to use in case of 802.1x
+  pub radius_profile: Option<String>,
 }
 
+#[allow(missing_docs)]
 #[derive(Debug, Clone)]
 pub enum WirelessBand {
   Invalid,
@@ -106,6 +125,7 @@ where
   }
 }
 
+#[allow(missing_docs)]
 #[derive(Debug, Clone)]
 pub enum WirelessNetworkSecurity {
   Invalid,
@@ -144,7 +164,10 @@ where
   }
 }
 
+#[allow(missing_docs)]
 /// The WPA security settings for a wireless network.
+///
+/// TODO: add enums for modes and encryption methods.
 #[derive(Debug, Clone)]
 pub struct WirelessNetworkWpa {
   pub mode: String,

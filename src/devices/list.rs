@@ -62,7 +62,7 @@ impl Unified {
   ///
   /// # Arguments
   ///
-  ///  * `site` - Name of the site to use
+  ///  * `site`       - Name of the site to use
   ///  * `device_ref` - Attribute and value to use to look up the device
   ///
   /// # Example

@@ -28,6 +28,7 @@ struct RemoteEvent {
 }
 
 impl Unified {
+  /// List events that happened on the network.
   pub async fn events(&self, site: &str, limit: Option<u64>) -> Result<Vec<Event>, UnifiedError> {
     let url = match limit {
       Some(limit) => format!("/api/s/{}/stat/event?_limit={}", site, limit),

@@ -7,6 +7,7 @@ use crate::{
 };
 
 impl<'wn> WirelessNetwork<'wn> {
+  /// Create a builder for a wireless network.
   pub fn builder(unified: &'wn Unified, site: &str, name: &str) -> WirelessNetworkBuilder<'wn> {
     WirelessNetworkBuilder {
       network: WirelessNetwork {
@@ -22,11 +23,13 @@ impl<'wn> WirelessNetwork<'wn> {
         wpa: None,
         passphrase: None,
         vlan: None,
+        radius_profile: None,
         advertised: true,
       },
     }
   }
 
+  /// Create the wireless network.
   pub async fn create(self) -> Result<(), UnifiedError> {
     let body: RemoteWirelessNetwork = self.clone().into();
 
@@ -42,6 +45,7 @@ impl<'wn> WirelessNetwork<'wn> {
     Ok(())
   }
 
+  /// Update the wireless network.
   pub async fn update(self) -> Result<(), UnifiedError> {
     let body: RemoteWirelessNetwork = self.clone().into();
 

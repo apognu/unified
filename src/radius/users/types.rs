@@ -34,11 +34,14 @@ impl From<RadiusUser<'_>> for RemoteRadiusUser {
 
 /// Representation of the attribute used to select a RADIUS user.
 pub enum RadiusUserRef<'r> {
+  /// Select the RADIUS user by its internal ID
   Id(&'r str),
+  /// Select the RADIUS user by its username
   Name(&'r str),
 }
 
 /// List of tunnel types for RADIUS users
+#[allow(missing_docs)]
 #[derive(Debug, Copy, Clone, FromPrimitive, ToPrimitive)]
 pub enum TunnelType {
   Unknown = 0,
@@ -58,6 +61,7 @@ pub enum TunnelType {
 }
 
 /// Lit of tunnel media types for RADIUS users
+#[allow(missing_docs)]
 #[derive(Debug, Copy, Clone, FromPrimitive, ToPrimitive)]
 pub enum TunnelMediumType {
   Unknown = 0,
@@ -86,10 +90,16 @@ pub struct RadiusUser<'ru> {
   pub(crate) unified: &'ru Unified,
   pub(crate) site: String,
 
+  /// Internal ID
   pub id: String,
+  /// Username
   pub name: String,
+  /// Cleartext password for this user
   pub password: String,
+  /// VLAN ID used to tag traffic from this user
   pub vlan: Option<u16>,
+  /// Protocol used for the tunnel
   pub tunnel_type: Option<TunnelType>,
+  /// Low-level protocol used for this tunnel medium
   pub tunnel_medium_type: Option<TunnelMediumType>,
 }

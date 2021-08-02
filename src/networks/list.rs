@@ -24,8 +24,8 @@ impl Unified {
       .into_iter()
       .map(|network| {
         let group = match (network.network_group, network.wan_network_group) {
-          (Some(group), None) => NetworkGroup::Lan(group.into()),
-          (None, Some(group)) => NetworkGroup::Wan(group.into()),
+          (Some(group), None) => NetworkGroup::Lan(group),
+          (None, Some(group)) => NetworkGroup::Wan(group),
           _ => NetworkGroup::None,
         };
 

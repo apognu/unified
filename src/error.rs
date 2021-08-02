@@ -1,5 +1,7 @@
 use thiserror::Error;
 
+/// Error type that can be returned by unified.
+#[allow(missing_docs)]
 #[derive(Debug, Error)]
 pub enum UnifiedError {
   #[error("unifi error: {0}")]
