@@ -31,5 +31,11 @@ pub use crate::{
   },
   sites::types::{Site, SiteHealth, SiteRef},
   unified::Unified,
-  wireless::types::{WirelessNetwork, WirelessNetworkRef, WirelessNetworkWpa},
+  wireless::{
+    groups::types::ApGroup,
+    networks::{
+      builder::WirelessNetworkBuilder,
+      types::{WirelessBand, WirelessNetwork, WirelessNetworkRef, WirelessNetworkSecurity, WirelessNetworkWpa},
+    },
+  },
 };

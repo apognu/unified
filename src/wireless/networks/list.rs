@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use reqwest::Method;
 
-use crate::{wireless::types::*, Unified, UnifiedError};
+use crate::{wireless::networks::types::*, Unified, UnifiedError};
 
 impl Unified {
   /// List all configured wireless networks on the given site.
@@ -23,7 +23,7 @@ impl Unified {
       .into_iter()
       .map(|network| {
         let wpa = match network.security.as_str() {
-          "wpa2" | "wpaeap" => Some(WirelessNetworkWpa {
+          "wpapsk" | "wpaeap" => Some(WirelessNetworkWpa {
             mode: network.wpa_mode,
             encryption: network.wpa_enc,
           }),
@@ -42,6 +42,9 @@ impl Unified {
           id: network.id,
           name: network.name,
           enabled: network.enabled,
+          network: network.network,
+          ap_groups: network.ap_groups,
+          band: network.band.map(WirelessBand::from),
           advertised: !network.hide_ssid,
           security: WirelessNetworkSecurity::from(network.security),
           wpa,

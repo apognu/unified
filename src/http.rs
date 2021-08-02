@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use reqwest::{Method, RequestBuilder};
+use reqwest::{Method, RequestBuilder, StatusCode};
 use serde::Deserialize;
 
 use crate::{Unified, UnifiedError};
@@ -86,6 +86,16 @@ where
     Ok(self.builder.send().await?.json::<Response<T>>().await?.short()?)
   }
 
+  pub async fn query_v2(self) -> Result<T, UnifiedError> {
+    let response = self.builder.send().await?;
+
+    if response.status() != StatusCode::OK {
+      return Err(UnifiedError::UnifiError(format!("Status code is {}", response.status())));
+    }
+
+    Ok(response.json::<T>().await?)
+  }
+
   pub async fn send(self) -> Result<(), UnifiedError> {
     self.builder.send().await?.json::<Response<Vec<()>>>().await?.short()?;
 
@@ -106,7 +116,10 @@ impl Unified {
     };
 
     UnifiRequest {
-      builder: client.request(method, &url).header("cookie", &self.token),
+      builder: match self.is_udm_pro {
+        true => client.request(method, &url).header("cookie", &self.token).header("x-csrf-token", &self.csrf),
+        false => client.request(method, &url).header("cookie", &self.token),
+      },
       _phantom: PhantomData::<T>::default(),
     }
   }

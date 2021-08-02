@@ -5,53 +5,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::Unified;
 
-#[derive(Debug, Clone, Copy)]
-pub enum NetworkPurpose {
-  Corporate,
-  Guest,
-  Wan,
-  VlanOnly,
-  RemoteUserVpn,
-  SiteToSiteVpn,
-  VpnClient,
-}
-
-impl ToString for NetworkPurpose {
-  fn to_string(&self) -> String {
-    let value = match self {
-      Self::Corporate => "corporate",
-      Self::Guest => "guest",
-      Self::Wan => "wan",
-      Self::VlanOnly => "vlan-only",
-      Self::RemoteUserVpn => "remote-user-vpn",
-      Self::SiteToSiteVpn => "site-vpn",
-      Self::VpnClient => "vpn-client",
-    };
-
-    value.to_string()
-  }
-}
-
-impl<T> From<T> for NetworkPurpose
-where
-  T: AsRef<str>,
-{
-  fn from(value: T) -> Self {
-    match value.as_ref() {
-      "corporate" => Self::Corporate,
-      "guest" => Self::Guest,
-      "wan" => Self::Wan,
-      "vlan-only" => Self::VlanOnly,
-      "remote-user-vpn" => Self::RemoteUserVpn,
-      "site-vpn" => Self::SiteToSiteVpn,
-      "vpn-client" => Self::VpnClient,
-      _ => Self::Corporate,
-    }
-  }
-}
-
 #[derive(Debug, Serialize, Deserialize)]
-pub struct RemoteNetwork {
+pub(super) struct RemoteNetwork {
   #[serde(rename = "_id", skip_serializing)]
   pub id: String,
   pub name: String,
@@ -127,6 +82,51 @@ pub enum NetworkRef<'r> {
   Name(&'r str),
   Domain(&'r str),
   Subnet(&'r str),
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum NetworkPurpose {
+  Corporate,
+  Guest,
+  Wan,
+  VlanOnly,
+  RemoteUserVpn,
+  SiteToSiteVpn,
+  VpnClient,
+}
+
+impl ToString for NetworkPurpose {
+  fn to_string(&self) -> String {
+    let value = match self {
+      Self::Corporate => "corporate",
+      Self::Guest => "guest",
+      Self::Wan => "wan",
+      Self::VlanOnly => "vlan-only",
+      Self::RemoteUserVpn => "remote-user-vpn",
+      Self::SiteToSiteVpn => "site-vpn",
+      Self::VpnClient => "vpn-client",
+    };
+
+    value.to_string()
+  }
+}
+
+impl<T> From<T> for NetworkPurpose
+where
+  T: AsRef<str>,
+{
+  fn from(value: T) -> Self {
+    match value.as_ref() {
+      "corporate" => Self::Corporate,
+      "guest" => Self::Guest,
+      "wan" => Self::Wan,
+      "vlan-only" => Self::VlanOnly,
+      "remote-user-vpn" => Self::RemoteUserVpn,
+      "site-vpn" => Self::SiteToSiteVpn,
+      "vpn-client" => Self::VpnClient,
+      _ => Self::Corporate,
+    }
+  }
 }
 
 #[derive(Debug, Clone)]

@@ -1,4 +1,2 @@
-pub(crate) mod types;
-
-mod list;
-mod state;
+pub(crate) mod groups;
+pub(crate) mod networks;

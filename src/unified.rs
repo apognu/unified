@@ -11,6 +11,7 @@ pub struct Unified {
   pub(crate) scheme: Scheme,
   pub(crate) host: String,
   pub(crate) token: String,
+  pub(crate) csrf: String,
   pub(crate) tls_verify: bool,
   pub(crate) is_udm_pro: bool,
 }
@@ -32,6 +33,7 @@ impl Unified {
       scheme: Scheme::Https,
       host: host.to_string(),
       token: String::new(),
+      csrf: String::new(),
       tls_verify: true,
       is_udm_pro: false,
     }
@@ -123,6 +125,10 @@ impl Unified {
 
     match self.is_udm_pro {
       true => {
+        if let Some(csrf) = response.headers().get("x-csrf-token") {
+          self.csrf = csrf.to_str().unwrap_or_default().to_owned();
+        }
+
         response.json::<UdmProAuthResponse>().await?.short()?;
       }
       false => {

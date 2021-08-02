@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::Unified;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub(crate) struct RemoteRadiusUser {
+pub(super) struct RemoteRadiusUser {
   #[serde(skip_serializing, rename = "_id")]
   pub(crate) id: String,
   pub(crate) name: String,
