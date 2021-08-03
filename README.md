@@ -8,7 +8,6 @@ Rust library to query and manipulate the configuration of a UniFi network throug
 
 ```rust
 let unifi = Unified::new("unifi.acme.corp")
-  .udm_pro()
   .auth("apiuser", "apipassword")
   .await?;
 
@@ -21,7 +20,20 @@ for network in unifi.networks("default").await? {
 }
 ```
 
+### UDM Pro
+
+The controller embedded into the UniFi Dream Machine Pro uses a different API, therefore you should opt into it when creating your `unified` instance, like so:
+
+```rust
+let unifi = Unified::new("unifi.acme.corp")
+  .udm_pro()
+  .auth("apiuser", "apipassword")
+  .await?;
+```
+
 ## Example (actual)
+
+This example lives in `examples/main.rs`.
 
 ```shell
 $ cargo run --example main -- unifi.acme.corp apiuser apipassword
