@@ -4,7 +4,7 @@ use chrono::NaiveDateTime;
 use macaddr::MacAddr;
 use reqwest::Method;
 
-use crate::{clients::types::*, Unified, UnifiedError};
+use crate::{clients::types::*, http::ApiV1, Unified, UnifiedError};
 
 impl Unified {
   /// List all known network clients on the given site.
@@ -19,7 +19,7 @@ impl Unified {
   /// let clients = unifi.clients("default").await?;
   /// ```
   pub async fn clients(&self, site: &str) -> Result<Vec<Client<'_>>, UnifiedError> {
-    let response: Vec<RemoteClient> = self.request(Method::GET, &format!("/api/s/{}/stat/sta", site)).query().await?;
+    let response = self.request::<ApiV1<Vec<RemoteClient>>>(Method::GET, &format!("/api/s/{}/stat/sta", site)).query().await?;
 
     let clients = response
       .into_iter()

@@ -1,6 +1,7 @@
 use reqwest::Method;
 
 use crate::{
+  http::ApiV1NoData,
   radius::users::{builder::RadiusUserBuilder, types::*},
   Unified, UnifiedError,
 };
@@ -47,7 +48,7 @@ impl<'ru> RadiusUser<'ru> {
 
     self
       .unified
-      .request::<Vec<RemoteRadiusUser>>(Method::POST, &format!("/api/s/{}/rest/account", self.site))
+      .request::<ApiV1NoData>(Method::POST, &format!("/api/s/{}/rest/account", self.site))
       .map(|r| r.json(&body))
       .query()
       .await?;
@@ -70,7 +71,7 @@ impl<'ru> RadiusUser<'ru> {
 
     self
       .unified
-      .request::<Vec<RemoteRadiusUser>>(Method::PUT, &format!("/api/s/{}/rest/account/{}", self.site, self.id))
+      .request::<ApiV1NoData>(Method::PUT, &format!("/api/s/{}/rest/account/{}", self.site, self.id))
       .map(|r| r.json(&body))
       .query()
       .await?;
@@ -88,7 +89,11 @@ impl<'ru> RadiusUser<'ru> {
   /// }
   /// ```
   pub async fn delete(self) -> Result<(), UnifiedError> {
-    self.unified.request::<()>(Method::DELETE, &format!("/api/s/{}/rest/account/{}", self.site, self.id)).send().await?;
+    self
+      .unified
+      .request::<ApiV1NoData>(Method::DELETE, &format!("/api/s/{}/rest/account/{}", self.site, self.id))
+      .send()
+      .await?;
 
     Ok(())
   }

@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use reqwest::Method;
 
-use crate::{wireless::networks::types::*, Unified, UnifiedError};
+use crate::{http::ApiV1, wireless::networks::types::*, Unified, UnifiedError};
 
 impl Unified {
   /// List all configured wireless networks on the given site.
@@ -17,7 +17,10 @@ impl Unified {
   /// let networks = unifi.networks("default").await?;
   /// ```
   pub async fn wireless_networks(&self, site: &str) -> Result<Vec<WirelessNetwork<'_>>, UnifiedError> {
-    let response: Vec<RemoteWirelessNetwork> = self.request(Method::GET, &format!("/api/s/{}/rest/wlanconf", site)).query().await?;
+    let response = self
+      .request::<ApiV1<Vec<RemoteWirelessNetwork>>>(Method::GET, &format!("/api/s/{}/rest/wlanconf", site))
+      .query()
+      .await?;
 
     let networks = response
       .into_iter()

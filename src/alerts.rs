@@ -2,7 +2,7 @@ use chrono::NaiveDateTime;
 use reqwest::Method;
 use serde::Deserialize;
 
-use crate::{Unified, UnifiedError};
+use crate::{http::ApiV1, Unified, UnifiedError};
 
 #[derive(Debug)]
 pub struct Alert {
@@ -33,7 +33,7 @@ impl Unified {
       None => format!("/api/s/{}/stat/alarm", site),
     };
 
-    let response: Vec<RemoteAlert> = self.request(Method::GET, &url).query().await?;
+    let response = self.request::<ApiV1<Vec<RemoteAlert>>>(Method::GET, &url).query().await?;
 
     let events = response
       .into_iter()

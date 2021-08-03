@@ -1,6 +1,6 @@
 use reqwest::Method;
 
-use crate::{sites::types::*, Unified, UnifiedError};
+use crate::{http::ApiV1, sites::types::*, Unified, UnifiedError};
 
 impl Unified {
   /// List all configured sites on the controller.
@@ -15,7 +15,7 @@ impl Unified {
   /// let sites = unifi.sites().await?;
   /// ```
   pub async fn sites(&self) -> Result<Vec<Site>, UnifiedError> {
-    let response: Vec<RemoteSite> = self.request(Method::GET, "/api/stat/sites").query().await?;
+    let response = self.request::<ApiV1<Vec<RemoteSite>>>(Method::GET, "/api/stat/sites").query().await?;
 
     let sites = response
       .into_iter()

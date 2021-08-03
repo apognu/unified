@@ -2,6 +2,7 @@ use reqwest::Method;
 use serde_json::json;
 
 use crate::{
+  http::ApiV1NoData,
   wireless::networks::{builder::WirelessNetworkBuilder, types::*},
   Unified, UnifiedError,
 };
@@ -37,7 +38,7 @@ impl<'wn> WirelessNetwork<'wn> {
 
     self
       .unified
-      .request::<Vec<RemoteWirelessNetwork>>(Method::POST, &format!("/api/s/{}/rest/wlanconf", self.site))
+      .request::<ApiV1NoData>(Method::POST, &format!("/api/s/{}/rest/wlanconf", self.site))
       .map(|r| r.json(&body))
       .query()
       .await?;
@@ -51,7 +52,7 @@ impl<'wn> WirelessNetwork<'wn> {
 
     self
       .unified
-      .request::<Vec<RemoteWirelessNetwork>>(Method::PUT, &format!("/api/s/{}/rest/wlanconf/{}", self.site, self.id))
+      .request::<ApiV1NoData>(Method::PUT, &format!("/api/s/{}/rest/wlanconf/{}", self.site, self.id))
       .map(|r| r.json(&body))
       .query()
       .await?;
@@ -69,7 +70,11 @@ impl<'wn> WirelessNetwork<'wn> {
   /// }
   /// ```
   pub async fn delete(self) -> Result<(), UnifiedError> {
-    self.unified.request::<()>(Method::DELETE, &format!("/api/s/{}/rest/wlanconf/{}", self.site, self.id)).send().await?;
+    self
+      .unified
+      .request::<ApiV1NoData>(Method::DELETE, &format!("/api/s/{}/rest/wlanconf/{}", self.site, self.id))
+      .send()
+      .await?;
 
     Ok(())
   }
@@ -103,7 +108,7 @@ impl<'wn> WirelessNetwork<'wn> {
   async fn set_state(&self, state: bool) -> Result<(), UnifiedError> {
     self
       .unified
-      .request(Method::PUT, &format!("/api/s/{}/rest/wlanconf/{}", self.site, self.id))
+      .request::<ApiV1NoData>(Method::PUT, &format!("/api/s/{}/rest/wlanconf/{}", self.site, self.id))
       .map(|r| r.json(&json!({ "enabled": state })))
       .query()
       .await?;

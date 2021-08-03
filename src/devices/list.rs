@@ -4,7 +4,7 @@ use macaddr::MacAddr;
 use num_traits::FromPrimitive;
 use reqwest::Method;
 
-use crate::{devices::types::*, Unified, UnifiedError};
+use crate::{devices::types::*, http::ApiV1, Unified, UnifiedError};
 
 impl Unified {
   /// List all adopted device on the given site.
@@ -19,7 +19,7 @@ impl Unified {
   /// let devices = unifi.devices("default").await?;
   /// ```
   pub async fn devices(&self, site: &str) -> Result<Vec<Device>, UnifiedError> {
-    let response: Vec<RemoteDevice> = self.request(Method::GET, &format!("/api/s/{}/stat/device", site)).query().await?;
+    let response = self.request::<ApiV1<Vec<RemoteDevice>>>(Method::GET, &format!("/api/s/{}/stat/device", site)).query().await?;
 
     let devices = response
       .into_iter()

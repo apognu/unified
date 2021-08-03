@@ -3,7 +3,7 @@ use std::{net::IpAddr, str::FromStr, time::Duration};
 use ipnet::IpNet;
 use reqwest::Method;
 
-use crate::{networks::types::*, Unified, UnifiedError};
+use crate::{http::ApiV1, networks::types::*, Unified, UnifiedError};
 
 impl Unified {
   /// List all configured networks on the given site.
@@ -18,7 +18,7 @@ impl Unified {
   /// let networks = unifi.networks("default").await?;
   /// ```
   pub async fn networks(&self, site: &str) -> Result<Vec<Network<'_>>, UnifiedError> {
-    let response: Vec<RemoteNetwork> = self.request(Method::GET, &format!("/api/s/{}/rest/networkconf", site)).query().await?;
+    let response = self.request::<ApiV1<Vec<RemoteNetwork>>>(Method::GET, &format!("/api/s/{}/rest/networkconf", site)).query().await?;
 
     let networks = response
       .into_iter()

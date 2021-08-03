@@ -2,7 +2,7 @@ use cookie::Cookie;
 use serde_json::json;
 
 use crate::{
-  http::{Response, Scheme, UdmProAuthResponse},
+  http::{ApiV1NoData, Scheme, UdmProAuthResponse, UnifiData, UnifiResponse},
   UnifiedError,
 };
 
@@ -129,10 +129,10 @@ impl Unified {
           self.csrf = csrf.to_str().unwrap_or_default().to_owned();
         }
 
-        response.json::<UdmProAuthResponse>().await?.short()?;
+        response.deserialize::<UdmProAuthResponse>().await?.catch()?;
       }
       false => {
-        response.json::<Response<Vec<()>>>().await?.short()?;
+        response.deserialize::<ApiV1NoData>().await?.catch()?;
       }
     }
 

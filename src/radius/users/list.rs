@@ -3,7 +3,7 @@ use std::str::FromStr;
 use num_traits::FromPrimitive;
 use reqwest::Method;
 
-use crate::{radius::users::types::*, Unified, UnifiedError};
+use crate::{http::ApiV1, radius::users::types::*, Unified, UnifiedError};
 
 impl Unified {
   /// List all configured RADIUS users.
@@ -18,7 +18,7 @@ impl Unified {
   /// let users = unifi.users("default").await?;
   /// ```
   pub async fn radius_users(&self, site: &str) -> Result<Vec<RadiusUser<'_>>, UnifiedError> {
-    let response: Vec<RemoteRadiusUser> = self.request(Method::GET, &format!("/api/s/{}/rest/account", site)).query().await?;
+    let response = self.request::<ApiV1<Vec<RemoteRadiusUser>>>(Method::GET, &format!("/api/s/{}/rest/account", site)).query().await?;
 
     let users = response
       .into_iter()

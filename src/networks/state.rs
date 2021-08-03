@@ -1,6 +1,7 @@
 use reqwest::Method;
 
 use crate::{
+  http::ApiV1NoData,
   networks::{builder::NetworkBuilder, types::*},
   Unified, UnifiedError,
 };
@@ -38,7 +39,7 @@ impl<'n> Network<'n> {
 
     self
       .unified
-      .request::<Vec<RemoteNetwork>>(Method::POST, &format!("/api/s/{}/rest/networkconf", self.site))
+      .request::<ApiV1NoData>(Method::POST, &format!("/api/s/{}/rest/networkconf", self.site))
       .map(|r| r.json(&body))
       .query()
       .await?;
@@ -50,7 +51,7 @@ impl<'n> Network<'n> {
   pub async fn delete(self) -> Result<(), UnifiedError> {
     self
       .unified
-      .request::<Vec<()>>(Method::DELETE, &format!("/api/s/{}/rest/networkconf/{}", self.site, self.id))
+      .request::<ApiV1NoData>(Method::DELETE, &format!("/api/s/{}/rest/networkconf/{}", self.site, self.id))
       .query()
       .await?;
 
