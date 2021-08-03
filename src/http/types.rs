@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use reqwest::Response;
+use reqwest::{Response, StatusCode};
 use serde::Deserialize;
 
 use crate::UnifiedError;
@@ -31,7 +31,7 @@ impl UnifiResponse for Response {
   where
     O: UnifiData,
   {
-    if self.status().as_u16() > 299 {
+    if self.status().as_u16() > 299 && self.status() != StatusCode::BAD_REQUEST {
       return Err(UnifiedError::UnifiError(format!("Status code {}", self.status())));
     }
 

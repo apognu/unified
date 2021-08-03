@@ -19,13 +19,14 @@ pub(super) struct RemoteNetwork {
   #[serde(rename = "wan_networkgroup", skip_serializing_if = "Option::is_none")]
   pub wan_network_group: Option<String>,
 
-  #[serde(rename = "ip_subnet")]
+  #[serde(rename = "ip_subnet", skip_serializing_if = "Option::is_none")]
   pub subnet: Option<String>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub domain_name: Option<String>,
 
   #[serde(default)]
   pub vlan_enabled: bool,
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub vlan: Option<String>,
 
   #[serde(default)]
@@ -37,8 +38,9 @@ pub(super) struct RemoteNetwork {
   #[serde(rename = "dhcpd_leasetime", skip_serializing_if = "Option::is_none")]
   pub dhcpd_lease_time: Option<u64>,
 
+  #[serde(skip_serializing_if = "Option::is_none")]
   pub vpn_type: Option<String>,
-  #[serde(rename = "x_ipsec_pre_shared_key")]
+  #[serde(rename = "x_ipsec_pre_shared_key", skip_serializing_if = "Option::is_none")]
   pub preshared_key: Option<String>,
 }
 

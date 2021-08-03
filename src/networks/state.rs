@@ -1,3 +1,6 @@
+use std::str::FromStr;
+
+use ipnet::IpNet;
 use reqwest::Method;
 
 use crate::{
@@ -8,8 +11,22 @@ use crate::{
 
 impl<'n> Network<'n> {
   /// Create a builder for a network.
-  pub fn builder(unified: &'n Unified, site: &str, name: &str, purpose: NetworkPurpose, group: NetworkGroup) -> NetworkBuilder<'n> {
-    NetworkBuilder {
+  ///
+  /// # Arguments
+  ///
+  ///  * `site`    - Name of the site to use
+  ///  * `name`    - Name of the network
+  ///  * `purpose` - Type of network
+  ///  * `group`   - Physical interface for this network
+  ///
+  /// # Example
+  ///
+  /// ```
+  /// let network = Network::builder(&unifi, "default", "ACME - Employees", NetworkPurpose::Corporate, NetworkGroup::Lan("LAN1".to_string()), "10.10.200.254/24")
+  ///   .build();
+  /// ```
+  pub fn builder(unified: &'n Unified, site: &str, name: &str, purpose: NetworkPurpose, group: NetworkGroup, subnet: &str) -> Result<NetworkBuilder<'n>, UnifiedError> {
+    Ok(NetworkBuilder {
       network: Network {
         unified,
         site: site.to_string(),
@@ -21,7 +38,7 @@ impl<'n> Network<'n> {
         purpose,
         group,
 
-        subnet: None,
+        subnet: Some(IpNet::from_str(subnet).map_err(|_| UnifiedError::InvalidIpAddress)?),
         domain: None,
 
         vlan_enabled: false,
@@ -30,10 +47,19 @@ impl<'n> Network<'n> {
         dhcp: None,
         vpn: None,
       },
-    }
+    })
   }
 
   /// Create a network.
+  ///
+  /// # Example
+  ///
+  /// ```
+  /// Network::builder(&unifi, "default", "Employees", NetworkPurpose::Corporate, NetworkGroup::Lan("LAN1".to_string()))
+  ///   .build()
+  ///   .create()
+  ///   .await?;
+  /// ```
   pub async fn create(self) -> Result<(), UnifiedError> {
     let body: RemoteNetwork = self.clone().into();
 
@@ -47,7 +73,38 @@ impl<'n> Network<'n> {
     Ok(())
   }
 
+  /// Update the network.
+  ///
+  /// # Example
+  ///
+  /// ```
+  /// if let Some(mut network) = unifi.network("default", NetworkRef::Name("ACME - Employees")).await? {
+  ///   network.domain = Some("employees.acme.corp");
+  ///   network.update().await?;
+  /// }
+  /// ```
+  pub async fn update(self) -> Result<(), UnifiedError> {
+    let body: RemoteNetwork = self.clone().into();
+
+    self
+      .unified
+      .request::<ApiV1NoData>(Method::PUT, &format!("/api/s/{}/rest/networkconf/{}", self.site, self.id))
+      .map(|r| r.json(&body))
+      .query()
+      .await?;
+
+    Ok(())
+  }
+
   /// Delete the network.
+  ///
+  /// # Example
+  ///
+  /// ```
+  /// if let Some(network) = unifi.network("default", NetworkRef::Name("ACME - Employees")).await? {
+  ///   network.delete().await?;
+  /// }
+  /// ```
   pub async fn delete(self) -> Result<(), UnifiedError> {
     self
       .unified
