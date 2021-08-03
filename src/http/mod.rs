@@ -32,12 +32,6 @@ where
   {
     Ok(self.builder.send().await?.deserialize::<T>().await?.catch()?)
   }
-
-  pub async fn send(self) -> Result<(), UnifiedError> {
-    self.builder.send().await?.deserialize::<ApiV1NoData>().await?.catch()?;
-
-    Ok(())
-  }
 }
 
 impl Unified {
@@ -45,7 +39,7 @@ impl Unified {
   where
     T: for<'ser> Deserialize<'ser>,
   {
-    let client = reqwest::ClientBuilder::new().danger_accept_invalid_certs(true).build().unwrap();
+    let client = reqwest::ClientBuilder::new().danger_accept_invalid_certs(!self.tls_verify).build().unwrap();
 
     let url = match self.is_udm_pro {
       true => format!("{}://{}/proxy/network{}", self.scheme.as_str(), self.host, path),

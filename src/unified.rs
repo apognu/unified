@@ -111,7 +111,7 @@ impl Unified {
       false => format!("{}://{}/api/login", self.scheme.as_str(), self.host),
     };
 
-    let client = reqwest::ClientBuilder::new().danger_accept_invalid_certs(true).build()?;
+    let client = reqwest::ClientBuilder::new().danger_accept_invalid_certs(!self.tls_verify).build()?;
     let response = client.post(&url).json(&credentials).send().await?;
 
     let cookies = response

@@ -92,7 +92,7 @@ impl<'ru> RadiusUser<'ru> {
     self
       .unified
       .request::<ApiV1NoData>(Method::DELETE, &format!("/api/s/{}/rest/account/{}", self.site, self.id))
-      .send()
+      .query()
       .await?;
 
     Ok(())

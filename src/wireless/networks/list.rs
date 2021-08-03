@@ -27,7 +27,7 @@ impl Unified {
       .map(|network| {
         let wpa = match network.security.as_str() {
           "wpapsk" | "wpaeap" => Some(WirelessNetworkWpa {
-            mode: network.wpa_mode.map(|mode| WirelessNetworkWpaMode::from(mode)).unwrap_or_else(|| WirelessNetworkWpaMode::Invalid),
+            mode: network.wpa_mode.map(WirelessNetworkWpaMode::from).unwrap_or_else(|| WirelessNetworkWpaMode::Invalid),
             encryption: network.wpa_enc.unwrap_or_default(),
           }),
           _ => None,
