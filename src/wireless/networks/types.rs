@@ -4,7 +4,7 @@ use crate::Unified;
 
 #[derive(Serialize, Deserialize)]
 pub(super) struct RemoteWirelessNetwork {
-  #[serde(rename = "_id")]
+  #[serde(rename = "_id", skip_serializing)]
   pub id: String,
   pub name: String,
   pub enabled: bool,
@@ -15,8 +15,10 @@ pub(super) struct RemoteWirelessNetwork {
   #[serde(rename = "wlan_band", skip_serializing_if = "Option::is_none")]
   pub band: Option<String>,
   pub security: String,
-  pub wpa_mode: String,
-  pub wpa_enc: String,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub wpa_mode: Option<String>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub wpa_enc: Option<String>,
   #[serde(rename = "x_passphrase", skip_serializing_if = "Option::is_none")]
   pub passphrase: Option<String>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -37,8 +39,8 @@ impl From<WirelessNetwork<'_>> for RemoteWirelessNetwork {
       band: network.band.map(|band| band.to_string()),
       ap_groups: network.ap_groups,
       security: network.security.to_string(),
-      wpa_mode: network.wpa.as_ref().map(|wpa| wpa.mode.clone()).unwrap_or_default(),
-      wpa_enc: network.wpa.as_ref().map(|wpa| wpa.encryption.clone()).unwrap_or_default(),
+      wpa_mode: network.wpa.as_ref().map(|wpa| wpa.mode.to_string()),
+      wpa_enc: network.wpa.as_ref().map(|wpa| wpa.encryption.to_string()),
       passphrase: network.passphrase,
       vlan: network.vlan.map(|vlan| vlan.to_string()),
       hide_ssid: !network.advertised,
@@ -90,7 +92,7 @@ pub struct WirelessNetwork<'wn> {
 }
 
 #[allow(missing_docs)]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum WirelessBand {
   Invalid,
   Band2G,
@@ -126,7 +128,7 @@ where
 }
 
 #[allow(missing_docs)]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum WirelessNetworkSecurity {
   Invalid,
   Open,
@@ -164,12 +166,53 @@ where
   }
 }
 
-#[allow(missing_docs)]
 /// The WPA security settings for a wireless network.
 ///
 /// TODO: add enums for modes and encryption methods.
 #[derive(Debug, Clone)]
 pub struct WirelessNetworkWpa {
-  pub mode: String,
-  pub encryption: String,
+  /// Supported WPA versions
+  pub mode: WirelessNetworkWpaMode,
+  /// Encryption method (only `ccmp` is supported as of now)
+  pub(crate) encryption: String,
+}
+
+/// WPA versions.
+#[derive(Debug, Clone, Copy)]
+pub enum WirelessNetworkWpaMode {
+  /// This value should not be used.
+  Invalid,
+  /// WPA version 1
+  Wpa1,
+  /// WPA version 2
+  Wpa2,
+  /// WPA version 1 and 2
+  Both,
+}
+
+impl ToString for WirelessNetworkWpaMode {
+  fn to_string(&self) -> String {
+    let value = match self {
+      Self::Invalid => "invalid",
+      Self::Wpa1 => "wpa1",
+      Self::Wpa2 => "wpa2",
+      Self::Both => "both",
+    };
+
+    value.to_string()
+  }
+}
+
+impl<T> From<T> for WirelessNetworkWpaMode
+where
+  T: AsRef<str>,
+{
+  fn from(value: T) -> Self {
+    match value.as_ref() {
+      "wpa1" => Self::Wpa1,
+      "wpa2" => Self::Wpa2,
+      "both" => Self::Both,
+      _ => Self::Invalid,
+    }
+  }
 }

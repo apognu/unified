@@ -47,7 +47,7 @@ pub(super) struct RemoteNetwork {
 impl From<Network<'_>> for RemoteNetwork {
   fn from(network: Network) -> RemoteNetwork {
     let (lan_group, wan_group) = match network.group {
-      NetworkGroup::None => (None, None),
+      NetworkGroup::Invalid => (None, None),
       NetworkGroup::Lan(group) => (Some(group), None),
       NetworkGroup::Wan(group) => (None, Some(group)),
     };
@@ -93,6 +93,7 @@ pub enum NetworkRef<'r> {
 #[allow(missing_docs)]
 #[derive(Debug, Clone, Copy)]
 pub enum NetworkPurpose {
+  Invalid,
   Corporate,
   Guest,
   Wan,
@@ -105,6 +106,7 @@ pub enum NetworkPurpose {
 impl ToString for NetworkPurpose {
   fn to_string(&self) -> String {
     let value = match self {
+      Self::Invalid => "invalid",
       Self::Corporate => "corporate",
       Self::Guest => "guest",
       Self::Wan => "wan",
@@ -131,7 +133,7 @@ where
       "remote-user-vpn" => Self::RemoteUserVpn,
       "site-vpn" => Self::SiteToSiteVpn,
       "vpn-client" => Self::VpnClient,
-      _ => Self::Corporate,
+      _ => Self::Invalid,
     }
   }
 }
@@ -140,7 +142,7 @@ where
 #[derive(Debug, Clone)]
 pub enum NetworkGroup {
   /// No network group, this should not be used
-  None,
+  Invalid,
   /// A LAN interface (LAN1, LAN2, etc.)
   Lan(String),
   /// A WAN interface (WAN1, WAN2, etc.)

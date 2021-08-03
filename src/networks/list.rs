@@ -26,7 +26,7 @@ impl Unified {
         let group = match (network.network_group, network.wan_network_group) {
           (Some(group), None) => NetworkGroup::Lan(group),
           (None, Some(group)) => NetworkGroup::Wan(group),
-          _ => NetworkGroup::None,
+          _ => NetworkGroup::Invalid,
         };
 
         let subnet = network.subnet.and_then(|subnet| IpNet::from_str(&subnet).ok());

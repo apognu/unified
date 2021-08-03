@@ -39,7 +39,7 @@ pub use crate::{
     groups::types::ApGroup,
     networks::{
       builder::WirelessNetworkBuilder,
-      types::{WirelessBand, WirelessNetwork, WirelessNetworkRef, WirelessNetworkSecurity, WirelessNetworkWpa},
+      types::{WirelessBand, WirelessNetwork, WirelessNetworkRef, WirelessNetworkSecurity, WirelessNetworkWpa, WirelessNetworkWpaMode},
     },
   },
 };

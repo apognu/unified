@@ -6,7 +6,10 @@ use std::{
 
 use ipnet::{AddrParseError as IpNetParseError, IpNet};
 
-use crate::networks::types::{Network, NetworkDhcp, NetworkGroup, NetworkVpn, VpnType};
+use crate::{
+  networks::types::{Network, NetworkDhcp, NetworkGroup, NetworkVpn, VpnType},
+  NetworkPurpose, UnifiedError,
+};
 
 /// Builder used to configure a network.
 pub struct NetworkBuilder<'n> {
@@ -14,6 +17,12 @@ pub struct NetworkBuilder<'n> {
 }
 
 impl<'n> NetworkBuilder<'n> {
+  /// Set the purpose (type) for the network.
+  pub fn purpose(mut self, purpose: NetworkPurpose) -> NetworkBuilder<'n> {
+    self.network.purpose = purpose;
+    self
+  }
+
   /// Set the network group (physical interface) for the network.
   pub fn group(mut self, group: NetworkGroup) -> NetworkBuilder<'n> {
     self.network.group = group;
@@ -74,7 +83,17 @@ impl<'n> NetworkBuilder<'n> {
   }
 
   /// Build the network.
-  pub fn build(self) -> Network<'n> {
-    self.network
+  pub fn build(self) -> Result<Network<'n>, UnifiedError> {
+    if self.network.subnet.is_none() {
+      return Err(UnifiedError::MissingAttribute("subnet".to_string()));
+    }
+    if let NetworkPurpose::Invalid = self.network.purpose {
+      return Err(UnifiedError::MissingAttribute("purpose".to_string()));
+    }
+    if let NetworkGroup::Invalid = self.network.group {
+      return Err(UnifiedError::MissingAttribute("group".to_string()));
+    }
+
+    Ok(self.network)
   }
 }

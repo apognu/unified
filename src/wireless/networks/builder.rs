@@ -1,6 +1,6 @@
 use crate::{
-  wireless::networks::types::{WirelessNetwork, WirelessNetworkSecurity, WirelessNetworkWpa},
-  WirelessBand,
+  wireless::networks::types::{WirelessNetwork, WirelessNetworkSecurity, WirelessNetworkWpa, WirelessNetworkWpaMode},
+  UnifiedError, WirelessBand,
 };
 
 /// Builder used to configure a wireless network.
@@ -40,8 +40,8 @@ impl<'wn> WirelessNetworkBuilder<'wn> {
   }
 
   /// Configure WPA security for this network.
-  pub fn wpa(mut self, wpa: WirelessNetworkWpa) -> WirelessNetworkBuilder<'wn> {
-    self.network.wpa = Some(wpa);
+  pub fn wpa(mut self, mode: WirelessNetworkWpaMode) -> WirelessNetworkBuilder<'wn> {
+    self.network.wpa = Some(WirelessNetworkWpa { mode, encryption: "ccmp".to_string() });
     self
   }
 
@@ -63,8 +63,34 @@ impl<'wn> WirelessNetworkBuilder<'wn> {
     self
   }
 
+  /// Set the RADIUS profile ID for 802.1x on this network.
+  pub fn radius_profile(mut self, profile: &str) -> WirelessNetworkBuilder<'wn> {
+    self.network.radius_profile = Some(profile.to_string());
+    self
+  }
+
   /// Build the wireless network.
-  pub fn build(self) -> WirelessNetwork<'wn> {
-    self.network
+  pub fn build(self) -> Result<WirelessNetwork<'wn>, UnifiedError> {
+    if self.network.network.is_none() {
+      return Err(UnifiedError::MissingAttribute("network".to_string()));
+    }
+    if self.network.ap_groups.is_empty() {
+      return Err(UnifiedError::MissingAttribute("ap_groups".to_string()));
+    }
+    if let WirelessNetworkSecurity::Invalid = self.network.security {
+      return Err(UnifiedError::MissingAttribute("security".to_string()));
+    }
+    if let WirelessNetworkSecurity::Wpa2 | WirelessNetworkSecurity::WpaEap = self.network.security {
+      if self.network.wpa.is_none() {
+        return Err(UnifiedError::MissingAttribute("wpa".to_string()));
+      }
+    }
+    if let WirelessNetworkSecurity::WpaEap = self.network.security {
+      if self.network.radius_profile.is_none() {
+        return Err(UnifiedError::MissingAttribute("radius_profile".to_string()));
+      }
+    }
+
+    Ok(self.network)
   }
 }

@@ -32,7 +32,7 @@ impl UnifiResponse for Response {
     O: UnifiData,
   {
     if self.status().as_u16() > 299 && self.status() != StatusCode::BAD_REQUEST {
-      return Err(UnifiedError::UnifiError(format!("Status code {}", self.status())));
+      return Err(UnifiedError::HttpError(self.status()));
     }
 
     Ok(self.json::<O>().await?)

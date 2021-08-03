@@ -1,6 +1,3 @@
-use std::str::FromStr;
-
-use ipnet::IpNet;
 use reqwest::Method;
 
 use crate::{
@@ -22,11 +19,11 @@ impl<'n> Network<'n> {
   /// # Example
   ///
   /// ```
-  /// let network = Network::builder(&unifi, "default", "ACME - Employees", NetworkPurpose::Corporate, NetworkGroup::Lan("LAN1".to_string()), "10.10.200.254/24")
+  /// let network = Network::builder(&unifi, "default", "ACME - Employees", NetworkPurpose::Corporate, NetworkGroup::Lan("LAN1".to_string()))
   ///   .build();
   /// ```
-  pub fn builder(unified: &'n Unified, site: &str, name: &str, purpose: NetworkPurpose, group: NetworkGroup, subnet: &str) -> Result<NetworkBuilder<'n>, UnifiedError> {
-    Ok(NetworkBuilder {
+  pub fn builder(unified: &'n Unified, site: &str, name: &str) -> NetworkBuilder<'n> {
+    NetworkBuilder {
       network: Network {
         unified,
         site: site.to_string(),
@@ -35,10 +32,10 @@ impl<'n> Network<'n> {
         name: name.to_string(),
         enabled: true,
 
-        purpose,
-        group,
+        purpose: NetworkPurpose::Invalid,
+        group: NetworkGroup::Invalid,
 
-        subnet: Some(IpNet::from_str(subnet).map_err(|_| UnifiedError::InvalidIpAddress)?),
+        subnet: None,
         domain: None,
 
         vlan_enabled: false,
@@ -47,7 +44,7 @@ impl<'n> Network<'n> {
         dhcp: None,
         vpn: None,
       },
-    })
+    }
   }
 
   /// Create a network.

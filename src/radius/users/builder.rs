@@ -1,4 +1,4 @@
-use crate::radius::users::types::*;
+use crate::{radius::users::types::*, UnifiedError};
 
 /// Helper builder to create new RADIUS users.
 ///
@@ -54,7 +54,7 @@ impl<'ru> RadiusUserBuilder<'ru> {
   }
 
   /// Finalize the builder and get a [RadiusUser] to be created.
-  pub fn build(self) -> RadiusUser<'ru> {
-    self.user
+  pub fn build(self) -> Result<RadiusUser<'ru>, UnifiedError> {
+    Ok(self.user)
   }
 }
