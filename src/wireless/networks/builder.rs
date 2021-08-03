@@ -80,7 +80,7 @@ impl<'wn> WirelessNetworkBuilder<'wn> {
     if let WirelessNetworkSecurity::Invalid = self.network.security {
       return Err(UnifiedError::MissingAttribute("security".to_string()));
     }
-    if let WirelessNetworkSecurity::Wpa2 | WirelessNetworkSecurity::WpaEap = self.network.security {
+    if let WirelessNetworkSecurity::WpaPsk | WirelessNetworkSecurity::WpaEap = self.network.security {
       if self.network.wpa.is_none() {
         return Err(UnifiedError::MissingAttribute("wpa".to_string()));
       }

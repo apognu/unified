@@ -9,6 +9,22 @@ use crate::{
 
 impl<'wn> WirelessNetwork<'wn> {
   /// Create a builder for a wireless network.
+  ///
+  /// # Arguments
+  ///
+  ///  * `site` - Name of the site to use
+  ///  * `name` - Name of the wireless network to create
+  ///
+  /// # Example
+  ///
+  /// ```
+  /// WirelessNetwork::builder(&unifi, "default", "ACME Corp")
+  ///   .ap_groups(vec!["6105d873b49ca605191f4331"])
+  ///   .network("6105dd31b49ca605191f4373")
+  ///   .security(WirelessNetworkSecurity::WpaPsk)
+  ///   .wpa(WirelessNetworkWpaMode::Wpa2)
+  ///   .build()?;
+  /// ```
   pub fn builder(unified: &'wn Unified, site: &str, name: &str) -> WirelessNetworkBuilder<'wn> {
     WirelessNetworkBuilder {
       network: WirelessNetwork {
@@ -31,6 +47,19 @@ impl<'wn> WirelessNetwork<'wn> {
   }
 
   /// Create the wireless network.
+  ///
+  /// # Example
+  ///
+  /// ```
+  /// WirelessNetwork::builder(&unifi, "default", "ACME Corp")
+  ///   .ap_groups(vec!["6105d873b49ca605191f4331"])
+  ///   .network("6105dd31b49ca605191f4373")
+  ///   .security(WirelessNetworkSecurity::WpaPsk)
+  ///   .wpa(WirelessNetworkWpaMode::Wpa2)
+  ///   .build()?;
+  ///   .create()
+  ///   .await?;
+  /// ```
   pub async fn create(self) -> Result<(), UnifiedError> {
     let body: RemoteWirelessNetwork = self.clone().into();
 
@@ -47,6 +76,15 @@ impl<'wn> WirelessNetwork<'wn> {
   }
 
   /// Update the wireless network.
+  ///
+  /// # Example
+  ///
+  /// ```
+  /// if let Some(mut network) = unifi.wireless_network("default", WirelessNetworkRef::Ssid("ACME Corp")).await? {
+  ///   network.passphrase = Some("azerty".to_string());
+  ///   network.update().await?;
+  /// }
+  /// ```
   pub async fn update(self) -> Result<(), UnifiedError> {
     let body: RemoteWirelessNetwork = self.clone().into();
 

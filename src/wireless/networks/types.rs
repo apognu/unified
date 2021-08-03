@@ -133,7 +133,7 @@ pub enum WirelessNetworkSecurity {
   Invalid,
   Open,
   Wep,
-  Wpa2,
+  WpaPsk,
   WpaEap,
 }
 
@@ -143,7 +143,7 @@ impl ToString for WirelessNetworkSecurity {
       Self::Invalid => "invalid",
       Self::Open => "open",
       Self::Wep => "wep",
-      Self::Wpa2 => "wpapsk",
+      Self::WpaPsk => "wpapsk",
       Self::WpaEap => "wpaeap",
     };
 
@@ -159,7 +159,7 @@ where
     match value.as_ref() {
       "open" => Self::Open,
       "wep" => Self::Wep,
-      "wpapsk" => Self::Wpa2,
+      "wpapsk" => Self::WpaPsk,
       "wpaeap" => Self::WpaEap,
       _ => Self::Invalid,
     }
@@ -167,8 +167,6 @@ where
 }
 
 /// The WPA security settings for a wireless network.
-///
-/// TODO: add enums for modes and encryption methods.
 #[derive(Debug, Clone)]
 pub struct WirelessNetworkWpa {
   /// Supported WPA versions
