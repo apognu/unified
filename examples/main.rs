@@ -1,3 +1,8 @@
+///! Usage:
+///!
+///! ```
+///! $ cargo run --example main -- <HOST> <API_USER> <API_PASSWORD>
+///! ```
 use std::{env, error::Error};
 
 use colored::Colorize;
@@ -6,12 +11,8 @@ use unified::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-  let args: Vec<String> = env::args().collect();
-  let host = args.get(1).unwrap();
-  let username = args.get(2).unwrap();
-  let password = args.get(3).unwrap();
-
-  let unifi = Unified::new(host).no_tls_verify().udm_pro().auth(username, password).await?;
+  let (host, username, password) = get_args();
+  let unifi = Unified::new(&host).no_tls_verify().udm_pro().auth(&username, &password).await?;
 
   print_section("1/ HEALTH");
 
@@ -93,4 +94,13 @@ fn new_table(headers: Row) -> Table {
   table.add_row(headers);
 
   table
+}
+
+fn get_args() -> (String, String, String) {
+  let args: Vec<String> = env::args().collect();
+  let host = args.get(1).unwrap().to_string();
+  let username = args.get(2).unwrap().to_string();
+  let password = args.get(3).unwrap().to_string();
+
+  (host, username, password)
 }

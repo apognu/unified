@@ -130,7 +130,7 @@ impl UnifiData for UdmProAuthResponse {
   fn catch(self) -> Result<Self::Output, UnifiedError> {
     if self.errors.is_some() {
       return match self.errors.unwrap().get(0) {
-        Some(message) => Err(UnifiedError::UnifiError(message.to_owned())),
+        Some(message) => Err(UnifiedError::UnifiError(message.to_string())),
         None => Err(UnifiedError::Unknown),
       };
     }

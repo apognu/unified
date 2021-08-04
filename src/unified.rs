@@ -126,14 +126,13 @@ impl Unified {
     match self.is_udm_pro {
       true => {
         if let Some(csrf) = response.headers().get("x-csrf-token") {
-          self.csrf = csrf.to_str().unwrap_or_default().to_owned();
+          self.csrf = csrf.to_str().unwrap_or_default().to_string();
         }
 
         response.deserialize::<UdmProAuthResponse>().await?.catch()?;
       }
-      false => {
-        response.deserialize::<ApiV1NoData>().await?.catch()?;
-      }
+
+      false => response.deserialize::<ApiV1NoData>().await?.catch()?,
     }
 
     self.token = cookies.join("; ");

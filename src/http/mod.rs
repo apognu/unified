@@ -37,7 +37,7 @@ where
 impl Unified {
   pub(crate) fn request<T>(&self, method: Method, path: &str) -> UnifiRequest<T>
   where
-    T: for<'ser> Deserialize<'ser>,
+    T: for<'de> Deserialize<'de>,
   {
     let client = reqwest::ClientBuilder::new().danger_accept_invalid_certs(!self.tls_verify).build().unwrap();
 
