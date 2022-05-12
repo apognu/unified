@@ -20,8 +20,11 @@ pub(super) struct RemoteClient {
   pub last_seen: Option<i64>,
   pub is_wired: bool,
   pub is_guest: bool,
+  #[serde(default)]
   pub authorized: bool,
+  #[serde(default)]
   pub rx_bytes: u64,
+  #[serde(default)]
   pub tx_bytes: u64,
   #[serde(rename = "wired-rx_bytes", default)]
   pub wired_rx_bytes: u64,
