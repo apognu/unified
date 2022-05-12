@@ -4,6 +4,7 @@
 ///! $ cargo run --example main -- <HOST> <API_USER> <API_PASSWORD>
 ///! ```
 use std::{env, error::Error};
+use std::{net::IpAddr, str::FromStr};
 
 use colored::Colorize;
 use prettytable::*;
@@ -75,6 +76,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
       network.name,
       network.network.unwrap_or_else(|| "-".to_string()),
       network.passphrase.unwrap_or_else(|| "-".to_string())
+    ]);
+  }
+  table.printstd();
+
+  print_section("7/ CLIENTS");
+  let mut table = new_table(row![b -> "Name", b -> "IP", b -> "MAC"]);
+  for client in unifi.clients("default").await? {
+    table.add_row(row![
+      client.name.unwrap_or_else(|| "-".to_string()),
+      client.ip.unwrap_or(IpAddr::from_str("0.0.0.0")?),
+      client.mac,
     ]);
   }
   table.printstd();
